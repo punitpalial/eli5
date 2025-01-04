@@ -1,0 +1,33 @@
+{
+    "name": "Real ELi5",
+    "version": "0.0.1",
+    "manifest_version": 3,
+    "description": "Explains anything to you as if you are 5",
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icon16.png",
+            "48": "icon48.png",
+            "128": "icon128.png"
+        }
+    },
+    "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["popup.js", "content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "test4.js",
+    "type": "module"
+    },
+    "permissions": [
+        "storage",
+        "tabs"
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    },
+    
+    "author": "Punit Palial"
+}
