@@ -1,14 +1,22 @@
+// Claude 3-8-24
+// document.addEventListener('mouseup', function() {
+//     let selectedText = window.getSelection().toString().trim();
+//     if (selectedText) {
+//       chrome.runtime.sendMessage({action: "textSelected", text: selectedText});
+//     }
+//   });
+
+// import { text } from "./test4";
+
 // OLD CODE
 let selectedText = "nothing yet";
 let textInPopup = "nothing yet";
 let popupOpen = false;
 
-let toggle = false;
-
 document.addEventListener("mouseup", () => {
   let selection = window.getSelection();
   selectedText = selection.toString();
-  if (selectedText && toggle) {
+  if (selectedText) {
     console.log(selectedText);
     // console.log('bool responseReceived: ', responseReceived);
     // const responseElement = document.getElementById('responseDiv');
@@ -18,116 +26,6 @@ document.addEventListener("mouseup", () => {
     sendSelectedTextToBackground(selectedText);
   }
 });
-
-//checking the keys
-
-let keyE = false;
-let key5 = false;
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "e") {
-    keyE = true;
-  } else if (event.key === "5") {
-    if (keyE) {
-      if (toggle) {
-        toggle = false;
-        console.log("toggle is false");
-      } else {
-        toggle = true;
-        enabled();
-        console.log("toggle is true");
-      }
-    }
-
-    keyE = false;
-  } else {
-    keyE = false;
-  }
-});
-
-//to show the popup that eli5 has been enabled
-function enabled() {
-  console.log("enabled function called");
-  // alert('eli5 enabled');
-
-  //define the popup in div
-  // const popup = document.createElement("div");
-  // popup.className = 'keyboard-popup';
-  const popup = document.createElement("div");
-
-  // Set text content for the popup
-  popup.textContent = "Keyboard Popup";
-
-  // Apply initial styles for the popup
-  popup.style.cssText = `
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 15px 25px;
-  background-color: #333;
-  color: white;
-  border-radius: 5px;
-  z-index: 9999;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  opacity: 1;
-  animation: slide-in 0.3s ease-out, fade-out 0.3s ease-out 3s forwards;
-`;
-
-  // Create and append the keyframes for the popup
-  const style = document.createElement("style");
-  style.textContent = `
-  @keyframes slide-in {
-    from {
-      transform: translateY(-20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes fade-out {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-`;
-
-  // Append the keyframes to the document head
-  document.head.appendChild(style);
-
-  // Append the popup to the document body
-  document.body.appendChild(popup);
-
-  // Ensure the popup is removed after fade-out completes
-  setTimeout(() => {
-    popup.remove();
-  }, 3300); // Matches animation duration (3s + 0.3s fade-out)
-
-  // Append the keyframes to the document head
-  document.head.appendChild(style);
-
-  // Append the popup to the document body
-  document.body.appendChild(popup);
-
-  popup.textContent = "eli5 Enabled";
-
-  console.log("displaying the popup");
-  //Add to page
-  document.body.appendChild(popup);
-
-  // Remove after delay
-  // setTimeout(() => {
-  //   popup.classList.add("fade-out");
-  //   setTimeout(() => {
-  //     popup.remove();
-  //   }, 300); // Match fade-out animation duration
-  // }, 2000);
-}
 
 document.addEventListener("click", () => {
   console.log("click event happened");
@@ -216,7 +114,6 @@ function showPopup() {
   if (!popupOpen) {
     popup = document.createElement("div");
     popup.id = "selection-popup";
-    // popup.className = 'popup-style';
     popup.style.cssText = `
         position: fixed;
         font-family: 'Roboto', sans-serif; 
