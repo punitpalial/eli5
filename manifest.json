@@ -1,10 +1,10 @@
 {
-    "name": "Real ELi5",
+    "name": "ELi5",
     "version": "0.0.1",
     "manifest_version": 3,
     "description": "Explains anything to you as if you are 5",
     "action": {
-        "default_popup": "popup.html",
+        
         "default_icon": {
             "16": "icon16.png",
             "48": "icon48.png",
@@ -14,20 +14,26 @@
     "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["popup.js", "content.js"]
+      "js": ["popup.js", "selectedTextExplanation/content.js", "areaScreenShotExplanation/content.js"],
+      "css": ["selectedTextExplanation/style.css", "areaScreenShotExplanation/style.css"],
+      "type": "module"
     }
-  ],
-  "background": {
-    "service_worker": "test4.js",
+    ],
+    "background": {
+    "service_worker": "geminiAPICall.js",
     "type": "module"
     },
     "permissions": [
         "storage",
-        "tabs"
+        "tabs",
+        "activeTab",
+        "scripting",
+        "downloads"
     ],
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'"
     },
-    
+    "host_permissions": ["<all_urls>"],
+    "options_page": "/options/options.html",
     "author": "Punit Palial"
 }

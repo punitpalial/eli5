@@ -1,0 +1,87 @@
+/* style.css */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.selection-popup {
+  position: fixed;
+  font-family: 'Roboto', sans-serif; 
+  top: 10px;
+  right: 10px;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 9999;
+  max-width: 350px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.toggle-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.toggle-message.show {
+  opacity: 1;
+}
+
+.toggle-message.hide {
+  transition: all 0.5s ease-out;
+  opacity: 0;
+}
+
+.explanation-popup {
+  position: fixed;
+        font-family: 'Roboto', sans-serif; 
+        top: 10px;
+        right: 10px;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 9999;
+        max-width: 350px;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* all: initial; /* Reset all properties */
+        /* * { all: unset; } /* Reset for all child elements */
+}
+
+
+.custom-scrollbar {
+  max-height: 400px;
+  overflow: auto;
+  margin-top: 10px;
+}

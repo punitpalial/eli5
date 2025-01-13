@@ -1,5 +1,5 @@
 import MistralClient from '@mistralai/mistralai';
-import { APIkey } from "./APIkey.js";
+import { APIkey } from "../APIkey.js";
 
 const client = new MistralClient(APIkey);
 const PREDEFINED_PROMPT = "tell me about lion";
