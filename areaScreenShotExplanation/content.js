@@ -1,27 +1,10 @@
-let startX,
-  startY,
-  endX,
-  endY,
-  isSelecting = false;
+let isSelecting = false;
 let selectionDiv;
 let startSelection = false;
-
-function cleanupCanvasElements() {
-  let oldCanvases = document.querySelectorAll(
-    'canvas[data-purpose="screenshot-crop"]'
-  );
-  oldCanvases.forEach((canvas) => {
-    canvas.width = 0;
-    canvas.height = 0;
-    canvas.remove();
-  });
-}
 
 document.addEventListener("keydown", (keyPressed) => {
   if (keyPressed.key === "Alt") {
     startSelection = true;
-
-    cleanupCanvasElements();
   }
 });
 
@@ -69,25 +52,6 @@ document.addEventListener("mousedown", (e) => {
   document.body.appendChild(selectionDiv);
 });
 
-addTheCursorLocation = (e) => {
-  console.log("e.pageX:", e.pageX, "e.pageY:", e.pageY);
-  let cursorLocation = document.createElement("div");
-  cursorLocation.style.position = "absolute";
-  cursorLocation.style.left = `${e.pageX + 10}px`;
-  cursorLocation.style.top = `${e.pageY + 10}px`;
-  cursorLocation.style.backgroundColor = "gray";
-  cursorLocation.style.color = "white";
-  cursorLocation.style.padding = "5px";
-  cursorLocation.style.borderRadius = "5px";
-  cursorLocation.style.zIndex = "9999";
-
-  cursorLocation.textContent = "e.pageX: " + e.pageX + " e.pageY: " + e.pageY;
-  document.body.appendChild(cursorLocation);
-  setTimeout(() => {
-    document.body.removeChild(cursorLocation);
-  }, 10000);
-};
-
 document.addEventListener("mousemove", (e) => {
   if (!isSelecting) return;
 
@@ -105,6 +69,23 @@ document.addEventListener("mousemove", (e) => {
   selectionDiv.style.left = `${Math.min(startX, endX) - 2}px`;
   selectionDiv.style.top = `${Math.min(startY, endY) - 2}px`;
 });
+
+function fadeOutAndRemove(element, duration) {
+  let opacity = 1; // Initial opacity
+  const interval = 50; // Interval in milliseconds
+  const decrement = interval / duration; // Amount to decrease opacity per interval
+
+  const fade = setInterval(() => {
+    opacity -= decrement; // Reduce opacity
+    if (opacity <= 0) {
+      opacity = 0;
+      clearInterval(fade); // Stop the interval
+      element.remove(); // Hide the element (optional)
+    } else {
+      element.style.opacity = opacity; // Update element opacity
+    }
+  }, interval);
+}
 
 document.addEventListener("mouseup", async (e) => {
   if (!isSelecting) return;
@@ -136,7 +117,7 @@ document.addEventListener("mouseup", async (e) => {
     finalDimensions.width = actualWidth + 10;
     finalDimensions.height = actualHeight + 10;
 
-    // document.body.removeChild(selectionDiv);
+    fadeOutAndRemove(selectionDiv, 500);
     selectionDiv = null;
   }
 
@@ -150,177 +131,21 @@ document.addEventListener("mouseup", async (e) => {
       (dataUrl) => {
         console.log("Tab Captured:", dataUrl);
 
-        // let template = document.createElement("template");
-        let canvas = document.createElement("canvas");
-        // document.body.appendChild(template);
-        // template.appendChild(canvas);
-
-        let ctx = canvas.getContext("2d");
-
-        let img = new Image();
-        img.src = dataUrl;
-
-        // console.log("img.src", img.src);
-
-        let scaleFactor = window.devicePixelRatio;
-
-        // let croppedwidth = Math.abs(startX - endX) * scaleFactor;
-        // let cropepdheight = Math.abs(startY - endY) * scaleFactor;
-
-        // let canvasWidth = Math.abs(startX - endX);
-        // let canvasHeight = Math.abs(startY - endY);
-
-        let sourceX = finalDimensions.x * scaleFactor;
-        let sourceY = finalDimensions.y * scaleFactor;
-        let sourceWidth = finalDimensions.width * scaleFactor;
-        let sourceHeight = finalDimensions.height * scaleFactor;
-
-        canvas.width = sourceWidth;
-        canvas.height = sourceHeight;
-
-        console.log("finalDimensions:", finalDimensions);
-
-        console.log(
-          "canvasWidth:",
-          canvas.width,
-          "canvasHeight:",
-          canvas.height
+        chrome.runtime.sendMessage(
+          {
+            action: "fetchExplanation",
+            dataUrl: dataUrl,
+          },
+          (response) => {
+            console.log("response:", response);
+          }
         );
-
-        console.log("BEFORE canvas.src", canvas.toDataURL("image/png", 1.0));
-
-        img.onload = async () => {
-          console.log("img.width:", img.width, "img.height:", img.height);
-          ctx.drawImage(
-            img,
-            sourceX,
-            sourceY,
-            sourceWidth,
-            sourceHeight,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-          );
-
-          console.log("canvas.src", canvas.toDataURL("image/png", 1.0));
-        };
-
-        console.log("AFTER canvas.src", canvas.toDataURL("image/png", 1.0));
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        console.log(
-          "AFTER canvas.width:",
-          canvas.width,
-          "canvas.height:",
-          canvas.height
-        );
-
-        // console.log("canvas.src", canvas.toDataURL("image/png", 1.0));
 
         if (!dataUrl) {
           console.error("Failed to capture tab.");
           return;
         }
-        cropImage(dataUrl, finalDimensions);
       }
     );
   }
 });
-
-function cropImage(dataUrl, dimensions) {
-  cleanupCanvasElements();
-
-  return new Promise((resolve, reject) => {
-    let img = new Image();
-    img.crossOrigin = "anonymous";
-
-    img.onload = () => {
-      try {
-        let scaleFactor = window.devicePixelRatio;
-
-        let template = document.createElement("template");
-        let canvas = document.createElement("canvas");
-        document.body.appendChild(template);
-        template.appendChild(canvas);
-
-        canvas.setAttribute("data-purpose", "screenshot-crop");
-
-        // Set canvas dimensions to match the selection exactly
-        canvas.width = dimensions.width * scaleFactor;
-        canvas.height = dimensions.height * scaleFactor;
-
-        let ctx = canvas.getContext("2d", {
-          willReadFrequently: true,
-          alpha: false,
-        });
-
-        // Clear canvas
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        console.log("scaleFactor", scaleFactor);
-
-        // Calculate source coordinates including border offset
-        let sourceX = dimensions.x * scaleFactor;
-        let sourceY = dimensions.y * scaleFactor;
-        let sourceWidth = dimensions.width * scaleFactor;
-        let sourceHeight = dimensions.height * scaleFactor;
-
-        // Draw the image
-        ctx.drawImage(
-          img,
-          sourceX,
-          sourceY,
-          sourceWidth,
-          sourceHeight,
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
-
-        // Convert to PNG
-        let croppedDataUrl = canvas.toDataURL("image/png", 1.0);
-
-        // Clean up
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = 0;
-        canvas.height = 0;
-
-        resolve(croppedDataUrl);
-      } catch (error) {
-        console.error("Error during cropping:", error);
-        reject(error);
-      }
-    };
-
-    // console.log("img", img);
-
-    img.onerror = (error) => {
-      console.error("Image load error:", error);
-      reject(new Error("Failed to load image for cropping"));
-    };
-
-    img.src = dataUrl;
-  })
-    .then((croppedDataUrl) => {
-      chrome.runtime.sendMessage(
-        {
-          action: "saveCroppedImage",
-          dataUrl: croppedDataUrl,
-        },
-        (response) => {
-          console.log("response:", response);
-        }
-      );
-    })
-    .catch((error) => {
-      console.error("Cropping failed:", error);
-      chrome.runtime.sendMessage({
-        action: "cropError",
-        error: error.message,
-      });
-    });
-}

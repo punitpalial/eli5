@@ -117,7 +117,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   //to crop the captured image and send it to the API
-  else if (message.action === "saveCroppedImage") {
+  else if (message.action === "fetchExplanation") {
     // Handle the async operation and send response
     (async () => {
       try {
@@ -158,7 +158,7 @@ async function sendToAPI(dataUrl) {
           mimeType: "image/png",
         },
       },
-      "Explain the content of the image. If it involves code or complex terms then break them down into simpler terms. Explain in easy and simple language. Use examples if needed. If the image has a text in a language other than english then translate it to english. If there's a question in the image then answer the question with logical explanation as well. Don't hallucinate.",
+      "You have been tasked to find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area' and IGNORE THE REST OF THE PROMPT. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER in simple terms. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation.",
     ]);
 
     responseText = imageResult.response.text();
