@@ -16,9 +16,8 @@ document.addEventListener("keyup", (keyPressed) => {
 
 document.addEventListener("mousedown", (e) => {
   if (e.button !== 0 || !startSelection) return;
-  isSelecting = true;
 
-  // addTheCursorLocation(e);
+  isSelecting = true;
 
   // Get the exact pixel position
   startX = Math.round(e.pageX);
@@ -53,7 +52,7 @@ document.addEventListener("mousedown", (e) => {
 });
 
 document.addEventListener("mousemove", (e) => {
-  if (!isSelecting) return;
+  if (!isSelecting || !startSelection) return;
 
   // Get the exact pixel position
   endX = Math.round(e.pageX);
@@ -88,12 +87,10 @@ function fadeOutAndRemove(element, duration) {
 }
 
 document.addEventListener("mouseup", async (e) => {
-  if (!isSelecting) return;
+  if (!isSelecting || !startSelection) return;
   isSelecting = false;
 
   console.log("endX:", endX, "endY:", endY);
-
-  // addTheCursorLocation(e);
 
   // Get the final dimensions including border adjustment
   let finalDimensions = {

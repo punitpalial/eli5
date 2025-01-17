@@ -1,25 +1,15 @@
-// import { responseText } from "../geminiAPICall.js";
-// import { responseReceivedFromAPI } from "../geminiAPICall.js";
-
-let selectedText = "nothing yet";
-let textInPopup = "nothing yet";
+let selectedText = "nothing";
+let textInPopup = "Loading...";
 let popupOpen = false;
 let toggle = false;
-
-document.addEventListener("mouseup", () => {
-  let selection = window.getSelection();
-  selectedText = selection.toString();
-  if (selectedText && isEli5Enabled) {
-    console.log(selectedText);
-    sendSelectedTextToBackground(selectedText);
-  }
-});
+let intputText = "nothing";
 
 /// Toggle state management
 let isEli5Enabled = false;
 let lastKeyPressed = null;
 const TOGGLE_TIMEOUT = 500; // ms to wait for the next key
 
+// Listen for keydown events to toggle state
 document.addEventListener("keydown", (event) => {
   const currentTime = Date.now();
 
@@ -42,6 +32,7 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+// Show a message when the toggle state changes
 function showToggleMessage(message) {
   console.log("showToggleMessage called", message);
 
@@ -73,16 +64,72 @@ function showToggleMessage(message) {
   // Remove element after animation completes
   setTimeout(() => {
     toggleMessage?.remove();
-  }, 4000);
+  }, 5000);
 }
-document.addEventListener("click", () => {
-  // console.log("click event happened");
-  if (popupOpen) {
-    popup.remove();
-    popupOpen = false;
-  }
+
+// Mouseup event listener to get selected text
+document.addEventListener("mouseup", () => {
+  setTimeout(() => {
+    let selection = window.getSelection();
+    selectedText = selection.toString();
+    if (selectedText && isEli5Enabled) {
+      console.log(selectedText);
+
+      if (!popupOpen) {
+        showPopup();
+      } else {
+        addUserMessageToChat(selectedText, true);
+        addGeminiResponseToChat("Loading the explanation", false);
+      }
+
+      sendSelectedTextToBackground(selectedText);
+    }
+  }, 100);
 });
 
+function createMessage(message, isUser = false) {
+  const newMessageDiv = document.createElement("div");
+  newMessageDiv.className = isUser ? "chat-message-user" : "chat-message-ai"; // finding the element which last used the 'chat-message-ai' class
+  newMessageDiv.textContent = message;
+  return newMessageDiv;
+}
+
+// Add function to add new messages
+function addUserMessageToChat(message, isUser = false) {
+  if (!popupOpen) return;
+
+  const chatContainer = popup.querySelector(".chat-container");
+  if (!chatContainer) return;
+
+  const messageDiv = createMessage(message, isUser);
+  chatContainer.appendChild(messageDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function addGeminiResponseToChat(message) {
+  if (!popupOpen) return;
+
+  const chatContainer = popup.querySelector(".chat-container");
+  if (!chatContainer) return;
+
+  // Find the last AI message in the chat container
+  const lastAiMessage = chatContainer.querySelector(
+    ".chat-message-ai:last-of-type"
+  );
+
+  if (lastAiMessage) {
+    // If there's an existing AI message, update its content
+    lastAiMessage.textContent = message;
+  } else {
+    // If no AI message exists, create a new one
+    const messageDiv = createMessage("Loading......", false);
+    chatContainer.appendChild(messageDiv);
+  }
+
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Send selected text to background script
 function sendSelectedTextToBackground(incomingText) {
   try {
     chrome.runtime.sendMessage(
@@ -97,7 +144,7 @@ function sendSelectedTextToBackground(incomingText) {
 
         if (response.responseReceived) {
           console.log("responseReceived is true");
-          showPopup();
+          addGeminiResponseToChat(textInPopup, false);
           popupOpen = true;
         }
       }
@@ -109,68 +156,241 @@ function sendSelectedTextToBackground(incomingText) {
 
 let popup;
 
+// Show popup with selected text and AI explanation
 function showPopup() {
-  //let popup = document.getElementById('selection-popup');
-  let crossButton = document.createElement("button");
-  crossButton.id = "cross-button";
-  crossButton.addEventListener("click", () => {
-    popup.remove();
-  });
-  crossButton.style.cssText = `
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background-color: transparent;
-      border: none;
-      color:rgba(255, 0, 0, 0.94);
-      font-size: 20px;
-      cursor: pointer;
-    `;
-  crossButton.textContent = "X";
-
-  if (!popupOpen) {
-    popup = document.createElement("div");
-    popup.id = "selection-popup";
-    // popup.className = 'popup-style';
-    popup.classList.add("explanation-popup");
-
-    const scrollableContainer = document.createElement("div");
-    scrollableContainer.className = "custom-scrollbar"; // Add a class for targeting
-
-    scrollableContainer.style.cssText = `
-      max-height: 400px;  /* Set the desired height for the scrollable area */
-      overflow: auto;     /* Enable scrolling */
-      margin-top: 10px;   /* Optional: Add some margin at the top */
-      `;
-
-    const style = document.createElement("style");
-    style.textContent = `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      `;
-
-    document.head.appendChild(style);
-
-    popup.appendChild(scrollableContainer);
-    // popup.appendChild(crossButton);
-    document.body.appendChild(popup);
-
-    let messageReceived = false;
-
-    scrollableContainer.textContent = `${textInPopup}`;
+  if (popupOpen) {
+    addUserMessageToChat(selectedText, true);
+    addGeminiResponseToChat("Loading the explanation", false);
   }
+
+  console.log("popupOpen is false so creating a new popup");
+
+  popupOpen = true;
+
+  popup = document.createElement("div");
+  popup.id = "selection-popup";
+  popup.classList.add("explanation-popup");
+
+  // Styles for the popup
+  const style = document.createElement("style");
+  style.textContent = `
+    .explanation-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 350px;
+      max-height: 500px;
+      background: #1E1E1E;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 10000;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      border: 1px solid #333;
+    }
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      max-height: 400px;
+      padding-right: 8px;
+    }
+    .chat-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-container::-webkit-scrollbar-track {
+      background: #2D2D2D;
+      border-radius: 3px;
+    }
+    .chat-container::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
+    }
+    .chat-container::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    .chat-input {
+      background-color: #2D2D2D;
+      border: 1px solid rgb(75, 85, 99);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      color: white;
+      width: 100%;
+      resize: none;
+      outline: none;
+    }
+    .chat-message-user {
+      align-self: flex-end;
+      background: #2B7FFF;
+      color: white;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border-bottom-right-radius: 0;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .chat-message-ai {
+      align-self: flex-start;
+      background: #2D2D2D;
+      color: white;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border-bottom-left-radius: 0;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #333;
+    }
+    .close-button {
+      color: #888;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      border-radius: 4px;
+    }
+    .close-button:hover {
+      color: white;
+      background: #333;
+    }
+    .input-container {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid #333;
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .send-button {
+      position: absolute;
+      right: 8px;
+      color: rgb(156, 163, 175);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+    .send-button:hover {
+      color: white;
+      background: #333;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Create header
+  const header = document.createElement("div");
+  header.className = "header";
+
+  // Create title
+  const title = document.createElement("span");
+  title.textContent = "ELI5 Explanation";
+
+  // Create close button
+  const closeButton = document.createElement("button");
+  closeButton.className = "close-button";
+  closeButton.innerHTML = "✕";
+  closeButton.addEventListener("click", () => {
+    popup.remove();
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    }
+    popupOpen = false;
+    console.log("popupOpen is false due to close button");
+  });
+
+  // Append elements to header
+  header.appendChild(title);
+  header.appendChild(closeButton);
+  popup.appendChild(header);
+
+  // Create chat container
+  const chatContainer = document.createElement("div");
+  chatContainer.className = "chat-container";
+
+  // Add initial messages
+  const userMessage = document.createElement("div");
+  userMessage.className = "chat-message-user";
+  userMessage.textContent = selectedText;
+  chatContainer.appendChild(userMessage);
+
+  // Add AI message
+  const aiMessage = document.createElement("div");
+  aiMessage.className = "chat-message-ai";
+  aiMessage.textContent = textInPopup;
+  chatContainer.appendChild(aiMessage);
+
+  popup.appendChild(chatContainer);
+
+  // Create input container
+  const inputContainer = document.createElement("div");
+  inputContainer.className = "input-container";
+
+  const inputWrapper = document.createElement("div");
+  inputWrapper.className = "input-wrapper";
+
+  const textarea = document.createElement("textarea");
+  textarea.className = "chat-input";
+  textarea.placeholder = "Ask a follow-up question...";
+  textarea.rows = 1;
+  textarea.addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 200) + "px";
+    // intputText = this.value;
+  });
+
+  // Create send button
+  const sendButton = document.createElement("button");
+  sendButton.className = "send-button";
+  sendButton.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1.25rem; height: 1.25rem;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+    </svg>
+  `;
+
+  // Add event listeners for sending messages
+  const sendMessage = () => {
+    const question = textarea.value.trim();
+    if (question) {
+      handleNewQuestion(question);
+      textarea.value = "";
+      textarea.style.height = "auto";
+    }
+  };
+
+  // Add event listeners for sending messages
+  sendButton.addEventListener("click", sendMessage);
+  textarea.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Append elements to input container
+  inputWrapper.appendChild(textarea);
+  inputWrapper.appendChild(sendButton);
+  inputContainer.appendChild(inputWrapper);
+  popup.appendChild(inputContainer);
+
+  // Focus input
+  textarea.focus();
+
+  // Add popup to page
+  document.body.appendChild(popup);
 }
 
 // ... existing code ...
@@ -181,12 +401,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       throw new Error("Extension context invalidated");
     }
 
-    console.log("Message received in content.js:", message);
+    console.log("Message received in content.js:", message.text);
 
     if (message.action === "imageExplanationResponseReceived") {
       textInPopup = message.text;
-      showPopup();
-      popupOpen = true;
+      addUserMessageToChat(textInPopup, false);
+      responseReceived = true;
       sendResponse({ received: true });
     }
   } catch (error) {
@@ -198,3 +418,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   return true;
 });
+
+// Update handleNewQuestion to use the new classes
+function handleNewQuestion(question) {
+  if (!question.trim()) return;
+
+  const userMessage = document.createElement("div");
+  userMessage.className = "chat-message-user";
+  userMessage.textContent = question;
+
+  const chatContainer = document.querySelector(".chat-container");
+  chatContainer.appendChild(userMessage);
+
+  // Clear textarea
+  const textarea = document.querySelector(".chat-input");
+  textarea.value = "";
+  textarea.style.height = "auto";
+
+  // Send question to background script
+  // sendSelectedTextToBackground(question);
+  console.log("question", question);
+}

@@ -75,7 +75,11 @@ const apiKeyOfGemini = config.GEMINI_API_KEY;
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(apiKeyOfGemini);
 
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  systemInstructions:
+    "You are an assistant whose task is to simply the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details",
+});
 
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
 let baseText =
@@ -89,6 +93,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         prompt = baseText + message.text;
         const response = await run(prompt);
+
+        // for await (const chunk of response.stream) {
+        //   const chunkText = chunk.text();
+        //   sendResponse({
+        //     sendResponseBackToContentScript: response,
+        //     responseReceived: true,
+        //   });
+        // }
 
         sendResponse({
           sendResponseBackToContentScript: response,

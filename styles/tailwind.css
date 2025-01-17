@@ -1,0 +1,14 @@
+/* Add only the Tailwind classes you're using to keep the file size small */
+.mt-4 { margin-top: 1rem; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.w-full { width: 100%; }
+.items-center { align-items: center; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.right-2 { right: 0.5rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.border { border-width: 1px; }
+.border-gray-600 { border-color: rgb(75, 85, 99); }
+.bg-\[\#2D2D2D\] { background-color: #2D2D2D; }
+/* Add other necessary classes */
