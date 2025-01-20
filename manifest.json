@@ -15,8 +15,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["popup.js", "selectedTextExplanation/content.js", "areaScreenShotExplanation/content.js"],
-      "css": ["selectedTextExplanation/style.css", "areaScreenShotExplanation/style.css", "styles/tailwind.css"],
-      "type": "module"
+      "css": ["selectedTextExplanation/style.css", "areaScreenShotExplanation/style.css", "styles/tailwind.css"]
     }
     ],
     "background": {
@@ -39,7 +38,7 @@
             "matches": ["<all_urls>"]
         }
     ],
-    "host_permissions": ["<all_urls>"],
+    "host_permissions": ["<all_urls>", "*://*/*"],
     "options_page": "/options/options.html",
     "author": "Punit Palial"
 }

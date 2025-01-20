@@ -3,6 +3,7 @@ let textInPopup = "Loading...";
 let popupOpen = false;
 let toggle = false;
 let intputText = "nothing";
+let conversation = [];
 
 /// Toggle state management
 let isEli5Enabled = false;
@@ -21,6 +22,7 @@ document.addEventListener("keydown", (event) => {
     // Toggle state
     console.log("pressed");
     isEli5Enabled = !isEli5Enabled;
+
     showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
     // testpopup();
     lastKeyPressed = null;
@@ -75,12 +77,12 @@ document.addEventListener("mouseup", () => {
     if (selectedText && isEli5Enabled) {
       console.log(selectedText);
 
+      window.getSelection().removeAllRanges();
       if (!popupOpen) {
         showPopup();
-      } else {
-        addUserMessageToChat(selectedText, true);
-        addGeminiResponseToChat("Loading the explanation", false);
       }
+      addUserMessageToChat(selectedText, true);
+      addGeminiResponseToChat("Loading the explanation", false);
 
       sendSelectedTextToBackground(selectedText);
     }
@@ -297,7 +299,7 @@ function showPopup() {
 
   // Create title
   const title = document.createElement("span");
-  title.textContent = "ELI5 Explanation";
+  title.textContent = "ELI5";
 
   // Create close button
   const closeButton = document.createElement("button");
@@ -324,14 +326,14 @@ function showPopup() {
   // Add initial messages
   const userMessage = document.createElement("div");
   userMessage.className = "chat-message-user";
-  userMessage.textContent = selectedText;
-  chatContainer.appendChild(userMessage);
+  // userMessage.textContent = selectedText;
+  // chatContainer.appendChild(userMessage);
 
   // Add AI message
   const aiMessage = document.createElement("div");
   aiMessage.className = "chat-message-ai";
-  aiMessage.textContent = textInPopup;
-  chatContainer.appendChild(aiMessage);
+  // aiMessage.textContent = textInPopup;
+  // chatContainer.appendChild(aiMessage);
 
   popup.appendChild(chatContainer);
 
@@ -349,7 +351,6 @@ function showPopup() {
   textarea.addEventListener("input", function () {
     this.style.height = "auto";
     this.style.height = Math.min(this.scrollHeight, 200) + "px";
-    // intputText = this.value;
   });
 
   // Create send button
@@ -405,7 +406,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     if (message.action === "imageExplanationResponseReceived") {
       textInPopup = message.text;
-      addUserMessageToChat(textInPopup, false);
+      addGeminiResponseToChat(textInPopup, false);
       responseReceived = true;
       sendResponse({ received: true });
     }
@@ -420,6 +421,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Update handleNewQuestion to use the new classes
+// ... existing code ...
 function handleNewQuestion(question) {
   if (!question.trim()) return;
 
@@ -430,12 +432,66 @@ function handleNewQuestion(question) {
   const chatContainer = document.querySelector(".chat-container");
   chatContainer.appendChild(userMessage);
 
-  // Clear textarea
+  // Clear textarea and show loading
   const textarea = document.querySelector(".chat-input");
   textarea.value = "";
   textarea.style.height = "auto";
+  addGeminiResponseToChat("Loading the explanation", false);
 
   // Send question to background script
-  // sendSelectedTextToBackground(question);
-  console.log("question", question);
+  chrome.runtime.sendMessage(
+    {
+      action: "getExplanationOfInputText",
+      text: question,
+      question: question, // Add this line to match what's used in background script
+    },
+    function (response) {
+      try {
+        if (!chrome.runtime?.id) {
+          throw new Error("Extension context invalidated");
+        }
+
+        if (!response) {
+          throw new Error("No response received");
+        }
+
+        if (response.error) {
+          console.error("Error from background script:", response.error);
+          addGeminiResponseToChat(
+            "Sorry, there was an error processing your request.",
+            false
+          );
+          return;
+        }
+
+        textInPopup = response.modelResponse;
+        addGeminiResponseToChat(textInPopup, false);
+      } catch (error) {
+        console.error("Error handling response:", error);
+        addGeminiResponseToChat(
+          "Sorry, something went wrong. Please try again.",
+          false
+        );
+      }
+    }
+  );
 }
+// ... existing code ...
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action == "areaCaptured") {
+    console.log("area captured");
+
+    if (!popupOpen) {
+      showPopup();
+
+      popupOpen = true;
+    }
+
+    addUserMessageToChat("Image captured", true);
+    addGeminiResponseToChat("Loading the explanation", false);
+
+    sendResponse({ received: true });
+  }
+  return true;
+});
