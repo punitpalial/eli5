@@ -70,29 +70,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Indicates we will send response asynchronously
   } // ... existing code ...
   else if (message.action === "getExplanationOfInputText") {
-      (async () => {
-        try {
-          console.log("Processing question:", message.question || message.text);
-          prompt = laterBaseText + (message.question || message.text);
-          let result = await chat.sendMessage(prompt);
-          let modelAnswer = result.response.text();
-  
-          console.log("getExplanationOfInputText response:", modelAnswer);
-  
-          addToHistory(message.text, modelAnswer);
-          sendResponse({
-            modelResponse: modelAnswer,
-            responseReceived: true
-          });
-        } catch (error) {
-          console.error("Error processing message:", error);
-          sendResponse({
-            error: error.message,
-            responseReceived: false
-          });
-        }
-      })();
-      return true; // Important: indicates we will send response asynchronously
+    (async () => {
+      try {
+        console.log("Processing question:", message.question || message.text);
+        prompt = laterBaseText + (message.question || message.text);
+        let result = await chat.sendMessage(prompt);
+        let modelAnswer = result.response.text();
+
+        console.log("getExplanationOfInputText response:", modelAnswer);
+
+        addToHistory(message.text, modelAnswer);
+        sendResponse({
+          modelResponse: modelAnswer,
+          responseReceived: true,
+        });
+      } catch (error) {
+        console.error("Error processing message:", error);
+        sendResponse({
+          error: error.message,
+          responseReceived: false,
+        });
+      }
+    })();
+    return true; // Important: indicates we will send response asynchronously
   }
   // ... existing code ...
 

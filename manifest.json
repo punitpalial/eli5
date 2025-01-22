@@ -4,7 +4,7 @@
     "manifest_version": 3,
     "description": "Explains anything to you as if you are 5",
     "action": {
-        
+        "default_popup": "popup.html",
         "default_icon": {
             "16": "icon16.png",
             "48": "icon48.png",
@@ -13,7 +13,7 @@
     },
     "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [ "<all_urls>"],
       "js": ["popup.js", "selectedTextExplanation/content.js", "areaScreenShotExplanation/content.js"],
       "css": ["selectedTextExplanation/style.css", "areaScreenShotExplanation/style.css", "styles/tailwind.css"]
     }
@@ -26,12 +26,11 @@
         "storage",
         "tabs",
         "activeTab",
-        "scripting",
-        "downloads"
+        "scripting"
     ],
     "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'"
-    },
+    "extension_pages": "script-src 'self'; object-src 'self';"
+},
     "web_accessible_resources": [
         {
             "resources": ["styles/tailwind.css"],
@@ -41,4 +40,5 @@
     "host_permissions": ["<all_urls>", "*://*/*"],
     "options_page": "/options/options.html",
     "author": "Punit Palial"
+    
 }

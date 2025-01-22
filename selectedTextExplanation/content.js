@@ -34,6 +34,18 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    // tabs[0] contains information about the active tab
+    const currentUrl = tabs[0].url;
+    console.log("url is ", url);
+  });
+});
+
+testElement.addEventListener("click", (event) => {
+  console.log("event happened: ", event);
+});
+
 // Show a message when the toggle state changes
 function showToggleMessage(message) {
   console.log("showToggleMessage called", message);
@@ -74,6 +86,17 @@ document.addEventListener("mouseup", () => {
   setTimeout(() => {
     let selection = window.getSelection();
     selectedText = selection.toString();
+
+    // Check if we're in a PDF viewer
+    if (document.querySelector('embed[type="application/pdf"]')) {
+      // Get the selected text from PDF viewer
+      selectedText = window.getSelection().toString().trim();
+    } else {
+      // Regular webpage selection
+      selection = window.getSelection();
+      selectedText = selection.toString().trim();
+    }
+
     if (selectedText && isEli5Enabled) {
       console.log(selectedText);
 
