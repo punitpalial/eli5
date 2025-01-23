@@ -2,21 +2,34 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import { config } from "./config.js";
 
-chrome.action.onClicked.addListener((tab) => {
-  // inject(tab);
-  console.log("clicked");
-  console.log("tab", tab);
-  console.log("tab id", tab.id);
-});
 
-//////////////////////////////////////////////
-
-export let text = "nothing yet";
-
+let text = "nothing yet";
 let responseText = "nothing yet";
 let responseReceivedFromAPI = false;
-
+let mode;
 const apiKeyOfGemini = config.GEMINI_API_KEY;
+
+chrome.storage.sync.get(
+  ['responseMode'], 
+  function(result) {
+ 
+      mode = result.responseMode;
+
+      console.log("responseMode in geminiAPIcall is: ", mode);
+});
+
+chrome.storage.onChanged.addListener(() => {
+  chrome.storage.sync.get(
+    ['responseMode'], 
+    function(result) {
+   
+        mode = result.responseMode;
+  
+        console.log("responseMode HAS BEEN CHANGED in geminiAPIcall is: ", mode);
+  });
+})
+
+
 
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(apiKeyOfGemini);
@@ -24,18 +37,27 @@ const genAI = new GoogleGenerativeAI(apiKeyOfGemini);
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
   systemInstructions:
-    "You are an assistant whose task is to simply the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details",
+    "You are an assistant whose task is to simplify the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details",
 });
 
 const chat = model.startChat({
   history: [],
 });
 
+// Modify your system instructions based on response mode
+function getSystemInstructions(mode) {
+  if (mode === 'eli5') {
+      return "You are an assistant whose task is to simplify the input text or image and explain it in very simple terms that a 5-year-old could understand. Use basic vocabulary and simple analogies. Break down complex concepts into their most basic elements.";
+  } else {
+      return "You are an assistant whose task is to provide clear, professional explanations of the input text or image. Use proper terminology while maintaining clarity, and provide technical details where appropriate.";
+  }
+}
+
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
 let firstBaseText =
   "Explain the selected text or word in simple terms. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't knwo something, simply say that you dont know instead of making things up. ";
-const laterBaseText =
-  "Use all the text in the history as context and answer what's asked in very simple terms. Explain in complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Here's the question: ";
+let laterBaseText =
+  "Use all the text in the history as context and answer what's asked in very simple terms. Explain in complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Ise your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: ";
 let prompt = "nothing yet";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -45,6 +67,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       try {
         let response;
+
+        firstBaseText = mode === 'eli5'
+        ? "Explain the selected text or word in simple terms as if you are explaining to a 5 year old. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. "
+        : "Explain the selected text or word in simple terms. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. "
         prompt = firstBaseText + message.text;
         response = await run(prompt);
 
@@ -73,6 +99,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       try {
         console.log("Processing question:", message.question || message.text);
+
+        laterBaseText = mode === 'eli5'
+        ? "Answer what's asked as if you are explaining to a 5 year old. Explain the  complex terms in simple terms as if you are explaining to a 5 year old. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: "
+        : "Answer what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: "
+        
         prompt = laterBaseText + (message.question || message.text);
         let result = await chat.sendMessage(prompt);
         let modelAnswer = result.response.text();
@@ -171,6 +202,12 @@ async function sendToAPI(dataUrl) {
   try {
     let base64Image = dataUrl.split(",")[1];
 
+    let promptPrefix = mode === 'eli5' 
+            ? "Find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area'. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER as if you are explaining to a 5 year old. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language as if you are explaining to a 5 year old. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation."
+            : "Find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area'. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER in simple terms. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation."
+
+            console.log("For image generation the mode is eli5 or not? ", mode);
+
     const imageResult = await model.generateContent([
       {
         inlineData: {
@@ -178,7 +215,7 @@ async function sendToAPI(dataUrl) {
           mimeType: "image/png",
         },
       },
-      "You have been tasked to find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area' and IGNORE THE REST OF THE PROMPT. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER in simple terms. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation.",
+    promptPrefix
     ]);
 
     responseText = imageResult.response.text();

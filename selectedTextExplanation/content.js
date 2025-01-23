@@ -4,6 +4,50 @@ let popupOpen = false;
 let toggle = false;
 let intputText = "nothing";
 let conversation = [];
+let responseMode = "eli5"; // Add this line to track response mode
+
+// Load saved states when content script initializes
+chrome.storage.sync.get(
+  ["textSelectionEnabled", "responseMode"],
+  function (result) {
+    console.log("this is result: ", result);
+    isTextSelectionEnabled = result.textSelectionEnabled ?? true; // if result.textSelectionEnabled is undefined or null, then its value will be true. Else it will store whatever value it has
+    responseMode = result.responseMode ?? "eli5";
+  }
+);
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "toggleTextSelection") {
+    isTextSelectionEnabled = message.enabled;
+  } else if (message.action === "toggleResponseMode") {
+    responseMode = message.mode;
+  }
+});
+
+// Modify your sendSelectedTextToBackground function to include response mode
+function sendSelectedTextToBackground(incomingText) {
+  try {
+    chrome.runtime.sendMessage(
+      {
+        action: "textSelected",
+        text: incomingText,
+        mode: responseMode, // Add this line to send mode
+      },
+      function (response) {
+        console.log("Response from background:", response);
+        textInPopup = response.sendResponseBackToContentScript;
+
+        if (response.responseReceived) {
+          addGeminiResponseToChat(textInPopup, false);
+          popupOpen = true;
+        }
+      }
+    );
+  } catch (error) {
+    console.log("Error in sendMessage:", error);
+  }
+}
 
 /// Toggle state management
 let isEli5Enabled = false;
@@ -40,10 +84,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentUrl = tabs[0].url;
     console.log("url is ", url);
   });
-});
-
-testElement.addEventListener("click", (event) => {
-  console.log("event happened: ", event);
 });
 
 // Show a message when the toggle state changes

@@ -1,6 +1,52 @@
 let isSelecting = false;
 let selectionDiv;
 let startSelection = false;
+// let responseMode = 'eli5'; // Add this line to track response mode
+let isAreaScreenshotEnabled = true;
+
+// Load saved states when content script initializes
+chrome.storage.sync.get(
+  ["areaScreenshotEnabled", "responseMode"],
+  function (result) {
+    isAreaScreenshotEnabled = result.areaScreenshotEnabled ?? true;
+    responseMode = result.responseMode ?? "eli5";
+  }
+);
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "toggleAreaScreenshot") {
+    isAreaScreenshotEnabled = message.enabled;
+  } else if (message.action === "toggleResponseMode") {
+    responseMode = message.mode;
+  } else if (
+    message.action === "initiateScreenshot" &&
+    isAreaScreenshotEnabled
+  ) {
+    startSelection = true;
+  }
+});
+
+// Modify your existing screenshot handling code to include response mode
+document.addEventListener("mouseup", async (e) => {
+  if (!isSelecting || !startSelection || !isAreaScreenshotEnabled) return;
+  isSelecting = false;
+
+  // ... your existing screenshot capture code ...
+
+  chrome.runtime.sendMessage(
+    {
+      action: "fetchExplanation",
+      dataUrl: dataUrl,
+      mode: responseMode, // Add this line to send mode
+    },
+    (response) => {
+      console.log("Screenshot explanation:", response);
+    }
+  );
+});
+
+// ... rest of your existing code ...
 
 document.addEventListener("keydown", (keyPressed) => {
   if (keyPressed.key === "Alt") {

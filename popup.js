@@ -21,18 +21,21 @@ document.addEventListener('DOMContentLoaded', function() {
       const isEli5Mode = this.checked;
       const mode = isEli5Mode ? 'eli5' : 'standard';
       chrome.storage.sync.set({ responseMode: mode });
+
+      console.log("Response mode changed in popup");
       
       updateResponseModeLabels(isEli5Mode);
 
       // Notify content scripts about the change
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
           chrome.tabs.sendMessage(tabs[0].id, {
-              action: "toggleResponseMode",
+              action: "responseModeChanged",
               mode: mode
           });
       });
   });
 
+  //Update the toggle UI in the popup
   function updateResponseModeLabels(isEli5Mode) {
       if (isEli5Mode) {
           eli5Label.classList.add('active');
