@@ -1,11 +1,10 @@
 
-import { GoogleGenerativeAI } from './node_modules/@google/generative-ai/dist/index.mjs';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export let text = 'nothing yet';
 
 // export let responseReceived = false;
 
-const apiKeyOfGemini = 'AIzaSyBovbyKOhCDO2M1XZMbGepSBprBBs_K9ng';
 
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(apiKeyOfGemini);

@@ -1,156 +1,104 @@
-// function test1(text) {
+document.addEventListener("DOMContentLoaded", function () {
+  const textSelectionToggle = document.getElementById("textSelectionToggle");
+  const areaScreenshotToggle = document.getElementById("areaScreenshotToggle");
+  const responseModeToggle = document.getElementById("responseModeToggle");
+  const screenshotButton = document.getElementById("screenshotButton");
+  const standardLabel = document.getElementById("standardLabel");
+  const eli5Label = document.getElementById("eli5Label");
 
-//     console.log('this is the text from popup.js => ', text);
-    
-    
-// }
+  // Load saved states
+  chrome.storage.sync.get(
+    ["textSelectionEnabled", "areaScreenshotEnabled", "responseMode"],
+    function (result) {
+      textSelectionToggle.checked = result.textSelectionEnabled ?? true;
+      areaScreenshotToggle.checked = result.areaScreenshotEnabled ?? true;
+      responseModeToggle.checked = result.responseMode === "eli5";
+      updateResponseModeLabels(responseModeToggle.checked);
+    }
+  );
 
+  // Response Mode Toggle
+  responseModeToggle.addEventListener("change", function () {
+    const isEli5Mode = this.checked;
+    const mode = isEli5Mode ? "eli5" : "standard";
+    chrome.storage.sync.set({ responseMode: mode });
 
+    // console.log("Response mode changed in popup");
 
+    updateResponseModeLabels(isEli5Mode);
 
+    // Notify content scripts about the change
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "responseModeChanged",
+        mode: mode,
+      });
+    });
+  });
 
+  //Update the Response Mode toggle in the popup
+  function updateResponseModeLabels(isEli5Mode) {
+    if (isEli5Mode) {
+      eli5Label.classList.add("active");
+      standardLabel.classList.remove("active");
+    } else {
+      standardLabel.classList.add("active");
+      eli5Label.classList.remove("active");
+    }
+  }
 
+  // If textSelectionToggle is changed
+  textSelectionToggle.addEventListener("change", function () {
+    const isEnabled = this.checked;
 
+    // console.log("textSelectionToggle changed in popup");
 
-// OLD CODE WHICH HAS NO USE NOW
+    chrome.storage.sync.set({ textSelectionEnabled: isEnabled });
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     const responseDiv = document.getElementById('responseDiv');
-//     responseDiv.textContent = 'Loading...';
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "toggleTextSelection",
+        enabled: isEnabled,
+      });
+    });
+  });
 
-//     chrome.runtime.sendMessage({ action: 'getExplanation' }, response => {
-//       if (response && response.response) {
-//         responseDiv.textContent = response.response;
-//       } else {
-//         responseDiv.textContent = 'Error: No response received';
-//       }
-//     });
-//   });
+  // If areaScreenshotToggle is changed
+  areaScreenshotToggle.addEventListener("change", function () {
+    const isAreaScreenShotEnabled = this.checked;
+    chrome.storage.sync.set({ areaScreenshotEnabled: isAreaScreenShotEnabled });
 
-//From Claude 3-8-24
+    // console.log("areaScreenshotToggle changed in popup");
 
-// Listen to mouseup event
-// document.addEventListener('mouseup', function() {
-//   console.log('mouseup event happened');
-//   let selectedText = window.getSelection().toString().trim();
-//   if (selectedText) {
-//     chrome.runtime.onMessage.addListener(function(details) {
-//       console.log('message to background javascript: ' + selectedText);
-//   });
-//   }
-// });
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "toggleAreaScreenshot",
+        enabled: isAreaScreenShotEnabled,
+      });
+    });
+  });
 
+  screenshotButton.addEventListener("click", function () {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "initiateScreenshot",
+      });
+    });
+  });
+});
 
-
-// document.addEventListener('selectionchange', function () {
-//   const selectedText = window.getSelection().toString().trim();
-//   // if (selectedText) {
-//   //   alert('Text selected: ' + selectedText);
-//   // }
-
-//   console.log('selected text: ', selectedText);
-//   chrome.runtime.sendMessage({ action: "getExplanation" }, function (response) {
-//     document.getElementById('responseDiv').textContent = response.explanation; // response.explanation is the text from the LLM API
-//   });
-
-
-// });
-
-// Send a request to the background script to get the explanation
-// document.addEventListener('DOMContentLoaded', function() {
-//   chrome.runtime.sendMessage({action: "getExplanation"}, function(response) {
-//     document.getElementById('responseDiv').textContent = response.explanation; // response.explanation is the text from the LLM API
-//   });
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import MistralClient from '@mistralai/mistralai';
-// import { APIkey } from "./APIkey.js";
-
-// export let answer = 'nothing yet';
-
-// const apiKey = APIkey;
-
-// const client = new MistralClient(apiKey);
-
-// async function chatRequest() {
-
-//     try {
-//         const chatResponse = await client.chat({
-//             model: 'mistral-large-latest',
-//             messages: [{ role: 'user', content: 'tell me a what you know aout paneer lababdar in 2 lines' }],
-//         });
-
-//         answer = await chatResponse.choices[0].message.content;
-
-//         return answer;
-//     } catch (error) {
-//         console.error('Error calling Mistral API:', error);
-//         return 'Error occured while fetching response'
-//     }
-// }
-
-// chatRequest().then(answer => {
-//     console.log(answer);
-//     const elementInExtension = document.getElementById('jokeElement');
-//     elementInExtension.innerHTML = answer;
-// })
-
-
-
-
-
-//import { answer } from "./mistralAPI.js";
-
-
-// const promptInput = document.getElementById('promptInput');
-// const submitButton = document.getElementById('submitButton');
-// const responseDiv = document.getElementById('responseDiv');
-
-// submitButton.addEventListener('click', () => {
-//     const prompt = promptInput.value;
-//     responseDiv.textContent = 'Loading...';
-
-// let prompt = 'tell me about lions';
-// let textContent = 'nothing';
-
-
-// chrome.runtime.sendMessage(
-//     { action: 'getMistralResponse', prompt: prompt },
-//     response => {
-//         if (response && response.response) {
-//             textContent = response.response;
-//         } else if (response && response.error) {
-//             textContent = 'Error: ' + response.error;
-//         } else {
-//             textContent = 'Error: No response received';
-//         }
-//     }
-// );
-
-
-// function updateTheExtension() {
-//     console.log(textContent);
-//     const elementInExtension = document.getElementById('jokeElement');
-//     elementInExtension.innerHTML = textContent;
-// }
-
-// updateTheExtension();
+// Listen for messages from content scripts
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.action === "updateTextSelectionToggle") {
+    document.getElementById("textSelectionToggle").checked = message.enabled;
+    chrome.storage.sync.set({ textSelectionEnabled: message.enabled });
+  } else if (message.action === "updateAreaScreenshotToggle") {
+    document.getElementById("areaScreenshotToggle").checked = message.enabled;
+    chrome.storage.sync.set({ areaScreenshotEnabled: message.enabled });
+  } else if (message.action === "updateResponseMode") {
+    const responseModeToggle = document.getElementById("responseModeToggle");
+    responseModeToggle.checked = message.mode === "eli5";
+    updateResponseModeLabels(responseModeToggle.checked);
+    chrome.storage.sync.set({ responseMode: message.mode });
+  }
+});

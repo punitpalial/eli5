@@ -6,10 +6,9 @@
 // });
 
 
-// API_KEY = 'AIzaSyBovbyKOhCDO2M1XZMbGepSBprBBs_K9ng';
 
 // const { GoogleGenerativeAI } = require("@google/generative-ai");
-import { GoogleGenerativeAI } from './node_modules/@google/generative-ai/dist/index.mjs';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // require('dotenv').config();
 // import dotenv from './node_modules/dotenv/lib/main.d.js';
@@ -17,7 +16,6 @@ import { GoogleGenerativeAI } from './node_modules/@google/generative-ai/dist/in
 
 export let text  = 'nothing yet';
 
-const apiKeyOfGemini = 'AIzaSyBovbyKOhCDO2M1XZMbGepSBprBBs_K9ng';
 
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(apiKeyOfGemini);

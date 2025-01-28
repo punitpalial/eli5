@@ -4,4 +4,5 @@ node_modules
 dist
 node_modules
 geiminiAPICall.js
->>>>>>> dc86ed432e36e51632916b09b47544b82aae524d
+config.js
+temp

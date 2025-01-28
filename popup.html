@@ -1,22 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="popup.css">
+    <title>ELi5</title>
 </head>
-
 <body>
-  <p id="responseDiv">Loading...</p>
-  <button id="button"> click it</button>
-  <script type="module" src="popup.js"></script>
-  <p>this image was generated in 2 seconds.
+    <div class="popup-container">
+        <h1 style="padding: auto;">ELi5</h1>
+        
+        <!-- Response Mode Toggle -->
+        <div class="toggle-container">
+            <div class="toggle-label">
+                <span>Response Mode</span>
+                <div class="mode-selector">
+                    <span class="mode-label" id="standardLabel">Standard</span>
+                    <label class="switch">
+                        <input type="checkbox" id="responseModeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="mode-label" id="eli5Label">ELI5</span>
+                </div>
+            </div>
+        </div>
 
-    model: SDXL base + inference optimizations.
-  
-  india's medal tally in paris olypmics 2024</p>
+        <div class="toggle-container">
+            <div class="toggle-label">
+                <span>Text Selection (E+5)</span>
+                <div class="shortcut">E+5</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="textSelectionToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="toggle-container">
+            <div class="toggle-label">
+                <span>Area Screenshot (Alt)</span>
+                <div class="shortcut">Alt</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="areaScreenshotToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <button id="screenshotButton" class="screenshot-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M8 8h.01"/>
+            </svg>
+            Take Screenshot
+        </button>
+    </div>
+    <script src="popup.js"></script>
 </body>
-
 </html>
