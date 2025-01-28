@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mode = isEli5Mode ? "eli5" : "standard";
     chrome.storage.sync.set({ responseMode: mode });
 
-    console.log("Response mode changed in popup");
+    // console.log("Response mode changed in popup");
 
     updateResponseModeLabels(isEli5Mode);
 
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
   textSelectionToggle.addEventListener("change", function () {
     const isEnabled = this.checked;
 
-    console.log("textSelectionToggle changed in popup");
+    // console.log("textSelectionToggle changed in popup");
 
     chrome.storage.sync.set({ textSelectionEnabled: isEnabled });
 
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const isAreaScreenShotEnabled = this.checked;
     chrome.storage.sync.set({ areaScreenshotEnabled: isAreaScreenShotEnabled });
 
-    console.log("areaScreenshotToggle changed in popup");
+    // console.log("areaScreenshotToggle changed in popup");
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       chrome.tabs.sendMessage(tabs[0].id, {
@@ -83,7 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
       chrome.tabs.sendMessage(tabs[0].id, {
         action: "initiateScreenshot",
       });
-      // window.close();
     });
   });
 });

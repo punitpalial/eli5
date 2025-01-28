@@ -13,7 +13,7 @@ let previousEli5ToggleState = isEli5Enabled;
 chrome.storage.sync.get(
   ["textSelectionEnabled", "responseMode", "areaScreenshotEnabled"],
   function (result) {
-    console.log("this is result: ", result);
+    // console.log("this is result: ", result);
     isTextSelectionEnabled = result.textSelectionEnabled ?? true; // if result.textSelectionEnabled is undefined or null, then its value will be true. Else it will store whatever value it has
     responseMode = result.responseMode ?? "eli5";
     isEli5Enabled = isTextSelectionEnabled;
@@ -27,19 +27,11 @@ chrome.storage.onChanged.addListener(() => {
     ["textSelectionEnabled", "areaScreenshotEnabled"],
     function (result) {
       if (result.textSelectionEnabled != isEli5Enabled) {
-        console.log(
-          "kya isEli5Enabled change hua ki nahi? ",
-          result.textSelectionEnabled
-        );
         isEli5Enabled = result.textSelectionEnabled;
         showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
       }
 
       if (result.areaScreenshotEnabled != isAreaScreenShotEnabled) {
-        console.log(
-          "kya isAreaScreenShotEnabled change hua ki nahi? ",
-          result.areaScreenshotEnabled
-        );
         isAreaScreenShotEnabled = result.areaScreenshotEnabled;
         showToggleMessage(
           `Area Screenshot ${isAreaScreenShotEnabled ? "Enabled" : "Disabled"}`
@@ -68,7 +60,7 @@ function sendSelectedTextToBackground(incomingText) {
         mode: responseMode, // Add this line to send mode
       },
       function (response) {
-        console.log("Response from background:", response);
+        // console.log("Response from background:", response);
         textInPopup = response.sendResponseBackToContentScript;
 
         if (response.responseReceived) {
@@ -96,8 +88,6 @@ document.addEventListener("keydown", (event) => {
     currentTime - lastKeyPressed.time < TOGGLE_TIMEOUT
   ) {
     // Toggle state
-    console.log("pressed");
-
     chrome.runtime.sendMessage({
       action: "updateTextSelectionToggle",
     });
@@ -107,10 +97,10 @@ document.addEventListener("keydown", (event) => {
     showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
 
     chrome.storage.sync.set({ textSelectionEnabled: isEli5Enabled });
-    console.log(
-      "in storage textSelectionEnabled has been set to: ",
-      isEli5Enabled
-    );
+    // console.log(
+    //   "in storage textSelectionEnabled has been set to: ",
+    //   isEli5Enabled
+    // );
 
     lastKeyPressed = null;
   } else {
@@ -125,13 +115,13 @@ document.addEventListener("DOMContentLoaded", function () {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     // tabs[0] contains information about the active tab
     const currentUrl = tabs[0].url;
-    console.log("url is ", url);
+    // console.log("url is ", url);
   });
 });
 
 // Show a message when the toggle state changes
 function showToggleMessage(message) {
-  console.log("showToggleMessage called", message);
+  // console.log("showToggleMessage called", message);
 
   // Add styles if not already present
   if (!document.querySelector("#toggle-message-styles")) {
@@ -170,18 +160,12 @@ document.addEventListener("mouseup", () => {
     let selection = window.getSelection();
     selectedText = selection.toString();
 
-    // Check if we're in a PDF viewer
-    if (document.querySelector('embed[type="application/pdf"]')) {
-      // Get the selected text from PDF viewer
-      selectedText = window.getSelection().toString().trim();
-    } else {
-      // Regular webpage selection
-      selection = window.getSelection();
-      selectedText = selection.toString().trim();
-    }
+    // Regular webpage selection
+    selection = window.getSelection();
+    selectedText = selection.toString().trim();
 
     if (selectedText && isEli5Enabled) {
-      console.log(selectedText);
+      // console.log(selectedText);
 
       window.getSelection().removeAllRanges();
       if (!popupOpen) {
@@ -220,7 +204,12 @@ function addUserMessageToChat(message, isUser = false, dataUrl) {
   const chatContainer = popup.querySelector(".chat-container");
   if (!chatContainer) return;
 
-  const messageDiv = createMessage("", isUser, dataUrl);
+  let userMessage;
+
+  if (message === "Image captured") userMessage = null;
+  else userMessage = message;
+
+  const messageDiv = createMessage(userMessage, isUser, dataUrl);
 
   chatContainer.appendChild(messageDiv);
   chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -255,15 +244,15 @@ function sendSelectedTextToBackground(incomingText) {
     chrome.runtime.sendMessage(
       { action: "textSelected", text: incomingText },
       function (response) {
-        console.log(
-          "this is response.sendResponseBackToContentScript => ",
-          response.sendResponseBackToContentScript
-        );
+        // console.log(
+        //   "this is response.sendResponseBackToContentScript => ",
+        //   response.sendResponseBackToContentScript
+        // );
 
         textInPopup = response.sendResponseBackToContentScript;
 
         if (response.responseReceived) {
-          console.log("responseReceived is true");
+          // console.log("responseReceived is true");
           addGeminiResponseToChat(textInPopup, false);
           popupOpen = true;
         }
@@ -283,8 +272,6 @@ function showPopup() {
     addGeminiResponseToChat("Loading the explanation", false);
   }
 
-  console.log("popupOpen is false so creating a new popup");
-
   popupOpen = true;
 
   popup = document.createElement("div");
@@ -294,7 +281,7 @@ function showPopup() {
   // Styles for the popup
   const style = document.createElement("style");
   style.textContent = `
-    .explanation-popup {
+    #selection-popup.explanation-popup {
       position: fixed;
       top: 20px;
       right: 20px;
@@ -302,37 +289,49 @@ function showPopup() {
       max-height: 500px;
       background: #1E1E1E;
       border-radius: 12px;
-      padding: 16px;
+      padding: 4px 16px 16px 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      z-index: 10000;
+      z-index: 2147483647;
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
       border: 1px solid #333;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      box-sizing: border-box;
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: inherit;
+        line-height: inherit;
+      }
     }
-    .chat-container {
+    #selection-popup .chat-container {
       display: flex;
       flex-direction: column;
       gap: 12px;
       overflow-y: auto;
       max-height: 400px;
       padding-right: 8px;
+      font-size: 14px;
     }
-    .chat-container::-webkit-scrollbar {
+    #selection-popup .chat-container::-webkit-scrollbar {
       width: 6px;
     }
-    .chat-container::-webkit-scrollbar-track {
+    #selection-popup .chat-container::-webkit-scrollbar-track {
       background: #2D2D2D;
       border-radius: 3px;
     }
-    .chat-container::-webkit-scrollbar-thumb {
+    #selection-popup .chat-container::-webkit-scrollbar-thumb {
       background: #888;
       border-radius: 3px;
     }
-    .chat-container::-webkit-scrollbar-thumb:hover {
+    #selection-popup .chat-container::-webkit-scrollbar-thumb:hover {
       background: #555;
     }
-    .chat-input {
+    #selection-popup .chat-input {
       background-color: #2D2D2D;
       border: 1px solid rgb(75, 85, 99);
       border-radius: 0.5rem;
@@ -341,41 +340,43 @@ function showPopup() {
       width: 100%;
       resize: none;
       outline: none;
+      font-size: 14px;
     }
 
-.chat-message-user {
-    align-self: flex-end;
-    background: #2B7FFF;
-    color: white;
-    padding: 0.5rem;
-    border-radius: 0.75rem;
-    border-bottom-right-radius: 0;
-    max-width: 80%;
-    word-wrap: break-word;
-    display: flex;
-    justify-content: center;
-}
+    #selection-popup .chat-message-user {
+      align-self: flex-end;
+      background: #2B7FFF;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 0.75rem;
+      border-bottom-right-radius: 0;
+      max-width: 80%;
+      word-wrap: break-word;
+      display: flex;
+      justify-content: center;
+      font-size: 14px;
+    }
 
-.chat-message-user-screenshot {
-    padding: 0.5rem;
-    border-radius: 0.75rem;
-    border-bottom-right-radius: 0;
-    max-width: 100%;
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: hidden;
-}
+    #selection-popup .chat-message-user-screenshot {
+      padding: 0.5rem;
+      border-radius: 0.75rem;
+      border-bottom-right-radius: 0;
+      max-width: 100%;
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: hidden;
+    }
 
-.chat-message-user-screenshot-img {
-    border-radius: 0.75rem;
-    border-bottom-right-radius: 0;
-    width: 100%;
-    height: auto;
-    display: block;
-}
+    #selection-popup .chat-message-user-screenshot-img {
+      border-radius: 0.75rem;
+      border-bottom-right-radius: 0;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
 
-    .chat-message-ai {
+    #selection-popup .chat-message-ai {
       align-self: flex-start;
       background: #2D2D2D;
       color: white;
@@ -384,40 +385,66 @@ function showPopup() {
       border-bottom-left-radius: 0;
       max-width: 80%;
       word-wrap: break-word;
+      font-size: 14px;
     }
-    .header {
+
+    #selection-popup .header {
+      position: relative;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      color: white;
-      padding-bottom: 8px;
+      height: 40px;
+      min-height: 40px;
+      max-height: 40px;
+      margin: 0;
       border-bottom: 1px solid #333;
+      background: transparent;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      box-sizing: border-box;
     }
-    .close-button {
+    
+    #selection-popup .header span {
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      line-height: 1;
+      margin: 0;
+      padding: 0;
+    }
+    
+    #selection-popup .close-button {
+      position: absolute;
+      right: 0px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 24px;
       color: #888;
       background: transparent;
       border: none;
-      font-size: 18px;
       cursor: pointer;
-      padding: 4px;
-      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 4px;
+      margin: 0;
+      padding: 0;
     }
-    .close-button:hover {
-      color: white;
-      background: #333;
-    }
-    .input-container {
+
+    #selection-popup .input-container {
       margin-top: auto;
       padding-top: 12px;
       border-top: 1px solid #333;
     }
-    .input-wrapper {
+
+    #selection-popup .input-wrapper {
       position: relative;
       display: flex;
       align-items: center;
     }
-    .send-button {
+
+    #selection-popup .send-button {
       position: absolute;
       right: 8px;
       color: rgb(156, 163, 175);
@@ -427,7 +454,8 @@ function showPopup() {
       padding: 4px;
       border-radius: 4px;
     }
-    .send-button:hover {
+
+    #selection-popup .send-button:hover {
       color: white;
       background: #333;
     }
@@ -445,14 +473,18 @@ function showPopup() {
   // Create close button
   const closeButton = document.createElement("button");
   closeButton.className = "close-button";
-  closeButton.innerHTML = "✕";
+  // Update the close button HTML to be more precise
+  closeButton.innerHTML = `
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M1.5 1.5L12.5 12.5M1.5 12.5L12.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+`;
   closeButton.addEventListener("click", () => {
     popup.remove();
     if (window.getSelection) {
       window.getSelection().removeAllRanges();
     }
     popupOpen = false;
-    console.log("popupOpen is false due to close button");
   });
 
   // Append elements to header
@@ -541,7 +573,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       throw new Error("Extension context invalidated");
     }
 
-    console.log("Message received in content.js:", message.text);
+    // console.log("Message received in content.js:", message.text);
 
     if (message.action === "imageExplanationResponseReceived") {
       textInPopup = message.text;
@@ -617,7 +649,7 @@ function handleNewQuestion(question) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action == "areaCaptured") {
-    console.log("area captured", message.dataUrl);
+    // console.log("area captured", message.dataUrl);
 
     if (!popupOpen) {
       showPopup();

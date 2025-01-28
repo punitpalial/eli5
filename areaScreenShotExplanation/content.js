@@ -15,8 +15,8 @@ chrome.storage.sync.get(
     isAreaScreenshotEnabled = result.areaScreenshotEnabled ?? true;
     responseMode = result.responseMode ?? "eli5";
 
-    console.log("responseMode is: ", responseMode);
-    console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
+    // console.log("responseMode is: ", responseMode);
+    // console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
   }
 );
 
@@ -27,8 +27,8 @@ chrome.storage.onChanged.addListener(() => {
       isAreaScreenshotEnabled = result.areaScreenshotEnabled ?? true;
       responseMode = result.responseMode ?? "eli5";
 
-      console.log("responseMode is: ", responseMode);
-      console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
+      // console.log("responseMode is: ", responseMode);
+      // console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
     }
   );
 });
@@ -38,15 +38,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "toggleAreaScreenshot") {
     isAreaScreenshotEnabled = message.enabled;
   } else if (message.action === "toggleResponseMode") {
-    console.log("sajjan razi ho javi fir vi");
     responseMode = message.mode;
   } else if (message.action === "initiateScreenshot") {
-    console.log("received the message from popup.js veere");
-
     intiateScreenshot = true;
-    console.log("from listener => initiate screenshot: ", intiateScreenshot);
     changeCursor(true);
-
     isSelecting = true;
   }
 });
@@ -61,31 +56,30 @@ window.addEventListener("blur", () => {
   }
 });
 
-function changeCursor(change) {
-  console.log("initiate screenshot: ", intiateScreenshot);
+function addTransparentDiv() {
+  transparentDiv.style.zIndex = "9999"; // Fixed zIndex property
+  transparentDiv.style.height = "100%"; // Added units
+  transparentDiv.style.width = "100%"; // Added units
+  transparentDiv.style.position = "absolute"; // Valid position value
+  transparentDiv.style.top = "0"; // Center vertically
+  transparentDiv.style.left = "0"; // Center horizontally
+  document.body.appendChild(transparentDiv);
+}
 
+function changeCursor(change) {
   if (change === true) {
-    console.log("Changing Cursor");
     document.body.style.cursor = "crosshair";
 
-    console.log("ADDING THE PURPLE DIV");
-
-    // transparentDiv.style.backgroundColor = "gray"; // Background color instead of text color
-    transparentDiv.style.zIndex = "9999"; // Fixed zIndex property
-    transparentDiv.style.height = "100%"; // Added units
-    transparentDiv.style.width = "100%"; // Added units
-    transparentDiv.style.position = "absolute"; // Valid position value
-    transparentDiv.style.top = "0"; // Center vertically
-    transparentDiv.style.left = "0"; // Center horizontally
-    // transparentDiv.style.transform = "translate(-50%, -50%)"; // Proper centering
-    document.body.appendChild(transparentDiv);
-  } else {
-    console.log("BHAI KUCH TOH RESPOND KARDE");
+    addTransparentDiv();
   }
 }
 
 document.addEventListener("keydown", (keyPressed) => {
   if (keyPressed.key === "Alt" && isAreaScreenshotEnabled) {
+    if (!document.body.contains(transparentDiv)) {
+      addTransparentDiv();
+    }
+
     document.body.style.cursor = "crosshair";
     isSelecting = true;
   }
@@ -94,6 +88,10 @@ document.addEventListener("keydown", (keyPressed) => {
 document.addEventListener("keyup", (keyPressed) => {
   if (keyPressed.key === "Alt") {
     document.body.style.cursor = "default";
+
+    if (document.body.contains(transparentDiv)) {
+      document.body.removeChild(transparentDiv);
+    }
 
     //Reset screenshot related state
     isSelecting = false;
@@ -116,7 +114,7 @@ document.addEventListener("mousedown", (e) => {
   startX = Math.round(e.pageX);
   startY = Math.round(e.pageY);
 
-  console.log("startX:", startX, "startY:", startY);
+  // console.log("startX:", startX, "startY:", startY);
 
   purpleSelectionBox = document.createElement("div");
   purpleSelectionBox.style.position = "absolute";
@@ -189,18 +187,19 @@ document.addEventListener("mouseup", async (e) => {
     if (!intiateScreenshot) return;
   }
 
+  if (document.body.contains(transparentDiv))
+    document.body.removeChild(transparentDiv);
+
   document.body.style.cursor = "default";
 
-  if (intiateScreenshot) {
-    intiateScreenshot = false;
-    document.body.removeChild(transparentDiv);
-  }
-
-  console.log("Mouseup => Initiate Screenshot", intiateScreenshot);
+  // if (intiateScreenshot) {
+  //   intiateScreenshot = false;
+  //   document.body.removeChild(transparentDiv);
+  // }
 
   isSelecting = false;
 
-  console.log("endX:", endX, "endY:", endY);
+  // console.log("endX:", endX, "endY:", endY);
 
   // Get the final dimensions including border adjustment
   let finalDimensions = {
@@ -229,14 +228,14 @@ document.addEventListener("mouseup", async (e) => {
   }
 
   if (finalDimensions.width > 0 && finalDimensions.height > 0) {
-    console.log("Selection dimensions:", finalDimensions);
+    // console.log("Selection dimensions:", finalDimensions);
 
     chrome.runtime.sendMessage(
       {
         action: "captureVisibleTab",
       },
       (dataUrl) => {
-        console.log("Tab Captured:", dataUrl);
+        // console.log("Tab Captured:", dataUrl);
 
         chrome.runtime.sendMessage(
           {
@@ -245,7 +244,7 @@ document.addEventListener("mouseup", async (e) => {
             mode: responseMode,
           },
           (response) => {
-            console.log("response:", response);
+            // console.log("response:", response);
           }
         );
 
