@@ -1,11 +1,10 @@
 let isSelecting = false;
-let purpleSelectionBox;
+let purpleSelectionBox = null;
 let endX = 0;
 let endY = 0;
 let startX = 0;
 let startY = 0;
 let intiateScreenshot = false;
-// let responseMode = 'eli5'; // Add this line to track response mode
 let isAreaScreenshotEnabled = true;
 let transparentDiv = document.createElement("div");
 
@@ -147,7 +146,7 @@ document.addEventListener("mousedown", (e) => {
 
 document.addEventListener("mousemove", (e) => {
   if (!isSelecting || !isAreaScreenshotEnabled) {
-    if (!intiateScreenshot) return;
+    return;
   }
 
   // Get the exact pixel position
@@ -159,10 +158,13 @@ document.addEventListener("mousemove", (e) => {
   let height = Math.abs(endY - startY);
 
   // Update selection div position and size, accounting for border
-  purpleSelectionBox.style.width = `${width}px`;
-  purpleSelectionBox.style.height = `${height}px`;
-  purpleSelectionBox.style.left = `${Math.min(startX, endX) - 2}px`;
-  purpleSelectionBox.style.top = `${Math.min(startY, endY) - 2}px`;
+
+  if (purpleSelectionBox != null) {
+    purpleSelectionBox.style.width = `${width}px`;
+    purpleSelectionBox.style.height = `${height}px`;
+    purpleSelectionBox.style.left = `${Math.min(startX, endX) - 2}px`;
+    purpleSelectionBox.style.top = `${Math.min(startY, endY) - 2}px`;
+  }
 });
 
 function fadeOutAndRemove(element, duration) {

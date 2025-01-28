@@ -21,26 +21,33 @@ chrome.storage.sync.get(
   }
 );
 
-// If the storage changes, show the 
+// If the storage changes, show the
 chrome.storage.onChanged.addListener(() => {
   chrome.storage.sync.get(
-    ['textSelectionEnabled', 'areaScreenshotEnabled'], 
-    function(result) {
-
-      if(result.textSelectionEnabled != isEli5Enabled) {
-        console.log("kya isEli5Enabled change hua ki nahi? ", result.textSelectionEnabled);
+    ["textSelectionEnabled", "areaScreenshotEnabled"],
+    function (result) {
+      if (result.textSelectionEnabled != isEli5Enabled) {
+        console.log(
+          "kya isEli5Enabled change hua ki nahi? ",
+          result.textSelectionEnabled
+        );
         isEli5Enabled = result.textSelectionEnabled;
         showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
       }
 
-      if(result.areaScreenshotEnabled != isAreaScreenShotEnabled) {
-        console.log("kya isAreaScreenShotEnabled change hua ki nahi? ", result.areaScreenshotEnabled);
+      if (result.areaScreenshotEnabled != isAreaScreenShotEnabled) {
+        console.log(
+          "kya isAreaScreenShotEnabled change hua ki nahi? ",
+          result.areaScreenshotEnabled
+        );
         isAreaScreenShotEnabled = result.areaScreenshotEnabled;
-        showToggleMessage(`Area Screenshot ${isAreaScreenShotEnabled ? "Enabled" : "Disabled"}`);
+        showToggleMessage(
+          `Area Screenshot ${isAreaScreenShotEnabled ? "Enabled" : "Disabled"}`
+        );
       }
-           
-  });
-})
+    }
+  );
+});
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -93,14 +100,17 @@ document.addEventListener("keydown", (event) => {
 
     chrome.runtime.sendMessage({
       action: "updateTextSelectionToggle",
-    })
+    });
 
     isEli5Enabled = !isEli5Enabled;
 
     showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
 
-    chrome.storage.sync.set({textSelectionEnabled: isEli5Enabled});
-    console.log("in storage textSelectionEnabled has been set to: ", isEli5Enabled);
+    chrome.storage.sync.set({ textSelectionEnabled: isEli5Enabled });
+    console.log(
+      "in storage textSelectionEnabled has been set to: ",
+      isEli5Enabled
+    );
 
     lastKeyPressed = null;
   } else {
@@ -154,8 +164,6 @@ function showToggleMessage(message) {
   }, 5000);
 }
 
-
-
 // Mouseup event listener to get selected text
 document.addEventListener("mouseup", () => {
   setTimeout(() => {
@@ -179,7 +187,7 @@ document.addEventListener("mouseup", () => {
       if (!popupOpen) {
         showPopup();
       }
-      addUserMessageToChat(selectedText, true);
+      addUserMessageToChat(selectedText, true, null);
       addGeminiResponseToChat("Loading the explanation", false);
 
       sendSelectedTextToBackground(selectedText);
@@ -187,21 +195,33 @@ document.addEventListener("mouseup", () => {
   }, 100);
 });
 
-function createMessage(message, isUser = false) {
+function createMessage(message, isUser = false, dataUrl) {
   const newMessageDiv = document.createElement("div");
   newMessageDiv.className = isUser ? "chat-message-user" : "chat-message-ai"; // finding the element which last used the 'chat-message-ai' class
   newMessageDiv.textContent = message;
+
+  if (dataUrl != null) {
+    const main = document.createElement("div");
+    main.className = "chat-message-user-screenshot";
+    const img = document.createElement("img");
+    img.src = dataUrl;
+    img.className = "chat-message-user-screenshot-img";
+    main.appendChild(img);
+    newMessageDiv.appendChild(main);
+  }
+
   return newMessageDiv;
 }
 
 // Add function to add new messages
-function addUserMessageToChat(message, isUser = false) {
+function addUserMessageToChat(message, isUser = false, dataUrl) {
   if (!popupOpen) return;
 
   const chatContainer = popup.querySelector(".chat-container");
   if (!chatContainer) return;
 
-  const messageDiv = createMessage(message, isUser);
+  const messageDiv = createMessage("", isUser, dataUrl);
+
   chatContainer.appendChild(messageDiv);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
@@ -222,7 +242,7 @@ function addGeminiResponseToChat(message) {
     lastAiMessage.textContent = message;
   } else {
     // If no AI message exists, create a new one
-    const messageDiv = createMessage("Loading......", false);
+    const messageDiv = createMessage("Loading......", false, null);
     chatContainer.appendChild(messageDiv);
   }
 
@@ -259,7 +279,7 @@ let popup;
 // Show popup with selected text and AI explanation
 function showPopup() {
   if (popupOpen) {
-    addUserMessageToChat(selectedText, true);
+    addUserMessageToChat(selectedText, true, null);
     addGeminiResponseToChat("Loading the explanation", false);
   }
 
@@ -322,16 +342,39 @@ function showPopup() {
       resize: none;
       outline: none;
     }
-    .chat-message-user {
-      align-self: flex-end;
-      background: #2B7FFF;
-      color: white;
-      padding: 0.75rem;
-      border-radius: 0.75rem;
-      border-bottom-right-radius: 0;
-      max-width: 80%;
-      word-wrap: break-word;
-    }
+
+.chat-message-user {
+    align-self: flex-end;
+    background: #2B7FFF;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    border-bottom-right-radius: 0;
+    max-width: 80%;
+    word-wrap: break-word;
+    display: flex;
+    justify-content: center;
+}
+
+.chat-message-user-screenshot {
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    border-bottom-right-radius: 0;
+    max-width: 100%;
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+}
+
+.chat-message-user-screenshot-img {
+    border-radius: 0.75rem;
+    border-bottom-right-radius: 0;
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
     .chat-message-ai {
       align-self: flex-start;
       background: #2D2D2D;
@@ -492,7 +535,6 @@ function showPopup() {
   document.body.appendChild(popup);
 }
 
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   try {
     if (!chrome.runtime?.id) {
@@ -575,7 +617,7 @@ function handleNewQuestion(question) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action == "areaCaptured") {
-    console.log("area captured");
+    console.log("area captured", message.dataUrl);
 
     if (!popupOpen) {
       showPopup();
@@ -583,7 +625,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       popupOpen = true;
     }
 
-    addUserMessageToChat("Image captured", true);
+    addUserMessageToChat("Image captured", true, message.dataUrl);
     addGeminiResponseToChat("Loading the explanation", false);
 
     sendResponse({ received: true });
