@@ -94,7 +94,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     })();
 
     return true; // Indicates we will send response asynchronously
-  } // ... existing code ...
+  } 
   else if (message.action === "getExplanationOfInputText") {
     (async () => {
       try {
@@ -125,7 +125,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     })();
     return true; // Important: indicates we will send response asynchronously
   }
-  // ... existing code ...
 
   //tocapture the visible tab
   else if (message.action === "captureVisibleTab") {
@@ -154,6 +153,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           "Explain the contents of the purple color box in image",
           result
         );
+
+        console.log("here's history: ", chat.history);
 
         sendResponse(result);
       } catch (error) {

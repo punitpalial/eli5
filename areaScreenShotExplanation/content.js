@@ -1,8 +1,13 @@
 let isSelecting = false;
-let selectionDiv;
-let startSelection = false;
+let purpleSelectionBox;
+let endX = 0;
+let endY = 0;
+let startX = 0;
+let startY = 0;
+let intiateScreenshot = false;
 // let responseMode = 'eli5'; // Add this line to track response mode
 let isAreaScreenshotEnabled = true;
+let transparentDiv = document.createElement("div");
 
 // Load saved states when content script initializes
 chrome.storage.sync.get(
@@ -10,59 +15,102 @@ chrome.storage.sync.get(
   function (result) {
     isAreaScreenshotEnabled = result.areaScreenshotEnabled ?? true;
     responseMode = result.responseMode ?? "eli5";
+
+    console.log("responseMode is: ", responseMode);
+    console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
   }
 );
+
+chrome.storage.onChanged.addListener(() => {
+  chrome.storage.sync.get(
+    ["areaScreenshotEnabled", "responseMode"],
+    function (result) {
+      isAreaScreenshotEnabled = result.areaScreenshotEnabled ?? true;
+      responseMode = result.responseMode ?? "eli5";
+
+      console.log("responseMode is: ", responseMode);
+      console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
+    }
+  );
+});
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "toggleAreaScreenshot") {
     isAreaScreenshotEnabled = message.enabled;
   } else if (message.action === "toggleResponseMode") {
+    console.log("sajjan razi ho javi fir vi");
     responseMode = message.mode;
-  } else if (
-    message.action === "initiateScreenshot" &&
-    isAreaScreenshotEnabled
-  ) {
-    startSelection = true;
+  } else if (message.action === "initiateScreenshot") {
+    console.log("received the message from popup.js veere");
+
+    intiateScreenshot = true;
+    console.log("from listener => initiate screenshot: ", intiateScreenshot);
+    changeCursor(true);
+
+    isSelecting = true;
   }
 });
 
-// Modify your existing screenshot handling code to include response mode
-document.addEventListener("mouseup", async (e) => {
-  if (!isSelecting || !startSelection || !isAreaScreenshotEnabled) return;
+// Add window blur event listener to reset selection state when window loses focus
+window.addEventListener("blur", () => {
   isSelecting = false;
-
-  // ... your existing screenshot capture code ...
-
-  chrome.runtime.sendMessage(
-    {
-      action: "fetchExplanation",
-      dataUrl: dataUrl,
-      mode: responseMode, // Add this line to send mode
-    },
-    (response) => {
-      console.log("Screenshot explanation:", response);
-    }
-  );
+  document.body.style.cursor = "default";
+  if (purpleSelectionBox) {
+    purpleSelectionBox.remove();
+    purpleSelectionBox = null;
+  }
 });
 
-// ... rest of your existing code ...
+function changeCursor(change) {
+  console.log("initiate screenshot: ", intiateScreenshot);
+
+  if (change === true) {
+    console.log("Changing Cursor");
+    document.body.style.cursor = "crosshair";
+
+    console.log("ADDING THE PURPLE DIV");
+
+    // transparentDiv.style.backgroundColor = "gray"; // Background color instead of text color
+    transparentDiv.style.zIndex = "9999"; // Fixed zIndex property
+    transparentDiv.style.height = "100%"; // Added units
+    transparentDiv.style.width = "100%"; // Added units
+    transparentDiv.style.position = "absolute"; // Valid position value
+    transparentDiv.style.top = "0"; // Center vertically
+    transparentDiv.style.left = "0"; // Center horizontally
+    // transparentDiv.style.transform = "translate(-50%, -50%)"; // Proper centering
+    document.body.appendChild(transparentDiv);
+  } else {
+    console.log("BHAI KUCH TOH RESPOND KARDE");
+  }
+}
 
 document.addEventListener("keydown", (keyPressed) => {
-  if (keyPressed.key === "Alt") {
-    startSelection = true;
+  if (keyPressed.key === "Alt" && isAreaScreenshotEnabled) {
+    document.body.style.cursor = "crosshair";
+    isSelecting = true;
   }
 });
 
 document.addEventListener("keyup", (keyPressed) => {
   if (keyPressed.key === "Alt") {
-    startSelection = false;
+    document.body.style.cursor = "default";
+
+    //Reset screenshot related state
+    isSelecting = false;
+
+    // Remove selection div if it exists
+    if (purpleSelectionBox) {
+      purpleSelectionBox.remove();
+      purpleSelectionBox = null;
+    }
   }
 });
 
 document.addEventListener("mousedown", (e) => {
-  if (e.button !== 0 || !startSelection) return;
-
+  if (e.button !== 0 || !isSelecting || !isAreaScreenshotEnabled) {
+    if (!intiateScreenshot) return;
+  }
   isSelecting = true;
 
   // Get the exact pixel position
@@ -71,34 +119,36 @@ document.addEventListener("mousedown", (e) => {
 
   console.log("startX:", startX, "startY:", startY);
 
-  selectionDiv = document.createElement("div");
-  selectionDiv.style.position = "absolute";
-  selectionDiv.style.border = "2px dashed transparent";
-  selectionDiv.style.backgroundImage =
+  purpleSelectionBox = document.createElement("div");
+  purpleSelectionBox.style.position = "absolute";
+  purpleSelectionBox.style.border = "2px dashed transparent";
+  purpleSelectionBox.style.backgroundImage =
     "linear-gradient(90deg, #6600ff #800080)";
-  selectionDiv.style.backgroundClip = "padding-box";
-  selectionDiv.style.borderRadius = "4px";
-  selectionDiv.style.boxShadow = `
+  purpleSelectionBox.style.backgroundClip = "padding-box";
+  purpleSelectionBox.style.borderRadius = "4px";
+  purpleSelectionBox.style.boxShadow = `
     0 0 0 2px transparent,
     0 0 8px 2px rgba(255, 0, 0, 0.3),
     0 0 8px 2px rgba(128, 0, 128, 0.3)
   `;
-  selectionDiv.style.background = `
+  purpleSelectionBox.style.background = `
     linear-gradient(90deg, #6600ff, #800080) border-box,
     linear-gradient(90deg, transparent, transparent) padding-box
   `;
-  selectionDiv.style.WebkitMask =
+  purpleSelectionBox.style.WebkitMask =
     "linear-gradient(black 0 0) padding-box, linear-gradient(black 0 0)";
-  selectionDiv.style.WebkitMaskComposite = "xor";
-  selectionDiv.style.zIndex = "9999";
+  purpleSelectionBox.style.WebkitMaskComposite = "xor";
+  purpleSelectionBox.style.zIndex = "9999";
   // Add 2px offset to account for border width
-  selectionDiv.style.left = `${startX - 2}px`;
-  selectionDiv.style.top = `${startY - 2}px`;
-  document.body.appendChild(selectionDiv);
+  purpleSelectionBox.style.left = `${startX - 2}px`;
+  purpleSelectionBox.style.top = `${startY - 2}px`;
+  document.body.appendChild(purpleSelectionBox);
 });
 
 document.addEventListener("mousemove", (e) => {
-  if (!isSelecting || !startSelection) return;
+  if (!isSelecting || !isAreaScreenshotEnabled) {
+    if (!intiateScreenshot) return;
+  }
 
   // Get the exact pixel position
   endX = Math.round(e.pageX);
@@ -109,10 +159,10 @@ document.addEventListener("mousemove", (e) => {
   let height = Math.abs(endY - startY);
 
   // Update selection div position and size, accounting for border
-  selectionDiv.style.width = `${width}px`;
-  selectionDiv.style.height = `${height}px`;
-  selectionDiv.style.left = `${Math.min(startX, endX) - 2}px`;
-  selectionDiv.style.top = `${Math.min(startY, endY) - 2}px`;
+  purpleSelectionBox.style.width = `${width}px`;
+  purpleSelectionBox.style.height = `${height}px`;
+  purpleSelectionBox.style.left = `${Math.min(startX, endX) - 2}px`;
+  purpleSelectionBox.style.top = `${Math.min(startY, endY) - 2}px`;
 });
 
 function fadeOutAndRemove(element, duration) {
@@ -133,7 +183,19 @@ function fadeOutAndRemove(element, duration) {
 }
 
 document.addEventListener("mouseup", async (e) => {
-  if (!isSelecting || !startSelection) return;
+  if (!isSelecting || !isAreaScreenshotEnabled) {
+    if (!intiateScreenshot) return;
+  }
+
+  document.body.style.cursor = "default";
+
+  if (intiateScreenshot) {
+    intiateScreenshot = false;
+    document.body.removeChild(transparentDiv);
+  }
+
+  console.log("Mouseup => Initiate Screenshot", intiateScreenshot);
+
   isSelecting = false;
 
   console.log("endX:", endX, "endY:", endY);
@@ -146,9 +208,9 @@ document.addEventListener("mouseup", async (e) => {
     height: Math.abs(endY - startY),
   };
 
-  if (selectionDiv) {
+  if (purpleSelectionBox) {
     // Store the computed styles before removing
-    let computedStyle = window.getComputedStyle(selectionDiv);
+    let computedStyle = window.getComputedStyle(purpleSelectionBox);
     let actualLeft = parseInt(computedStyle.left);
     let actualTop = parseInt(computedStyle.top);
     let actualWidth = parseInt(computedStyle.width);
@@ -160,8 +222,8 @@ document.addEventListener("mouseup", async (e) => {
     finalDimensions.width = actualWidth + 10;
     finalDimensions.height = actualHeight + 10;
 
-    fadeOutAndRemove(selectionDiv, 500);
-    selectionDiv = null;
+    fadeOutAndRemove(purpleSelectionBox, 500);
+    purpleSelectionBox = null;
   }
 
   if (finalDimensions.width > 0 && finalDimensions.height > 0) {
@@ -178,6 +240,7 @@ document.addEventListener("mouseup", async (e) => {
           {
             action: "fetchExplanation",
             dataUrl: dataUrl,
+            mode: responseMode,
           },
           (response) => {
             console.log("response:", response);

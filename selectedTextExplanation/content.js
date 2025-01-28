@@ -3,18 +3,44 @@ let textInPopup = "Loading...";
 let popupOpen = false;
 let toggle = false;
 let intputText = "nothing";
-let conversation = [];
 let responseMode = "eli5"; // Add this line to track response mode
+let isEli5Enabled = false;
+let isAreaScreenShotEnabled = false;
+let lastKeyPressed = null;
+let previousEli5ToggleState = isEli5Enabled;
 
 // Load saved states when content script initializes
 chrome.storage.sync.get(
-  ["textSelectionEnabled", "responseMode"],
+  ["textSelectionEnabled", "responseMode", "areaScreenshotEnabled"],
   function (result) {
     console.log("this is result: ", result);
     isTextSelectionEnabled = result.textSelectionEnabled ?? true; // if result.textSelectionEnabled is undefined or null, then its value will be true. Else it will store whatever value it has
     responseMode = result.responseMode ?? "eli5";
+    isEli5Enabled = isTextSelectionEnabled;
+    isAreaScreenShotEnabled = result.areaScreenshotEnabled;
   }
 );
+
+// If the storage changes, show the 
+chrome.storage.onChanged.addListener(() => {
+  chrome.storage.sync.get(
+    ['textSelectionEnabled', 'areaScreenshotEnabled'], 
+    function(result) {
+
+      if(result.textSelectionEnabled != isEli5Enabled) {
+        console.log("kya isEli5Enabled change hua ki nahi? ", result.textSelectionEnabled);
+        isEli5Enabled = result.textSelectionEnabled;
+        showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
+      }
+
+      if(result.areaScreenshotEnabled != isAreaScreenShotEnabled) {
+        console.log("kya isAreaScreenShotEnabled change hua ki nahi? ", result.areaScreenshotEnabled);
+        isAreaScreenShotEnabled = result.areaScreenshotEnabled;
+        showToggleMessage(`Area Screenshot ${isAreaScreenShotEnabled ? "Enabled" : "Disabled"}`);
+      }
+           
+  });
+})
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -50,8 +76,7 @@ function sendSelectedTextToBackground(incomingText) {
 }
 
 /// Toggle state management
-let isEli5Enabled = false;
-let lastKeyPressed = null;
+
 const TOGGLE_TIMEOUT = 500; // ms to wait for the next key
 
 // Listen for keydown events to toggle state
@@ -65,10 +90,18 @@ document.addEventListener("keydown", (event) => {
   ) {
     // Toggle state
     console.log("pressed");
+
+    chrome.runtime.sendMessage({
+      action: "updateTextSelectionToggle",
+    })
+
     isEli5Enabled = !isEli5Enabled;
 
     showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
-    // testpopup();
+
+    chrome.storage.sync.set({textSelectionEnabled: isEli5Enabled});
+    console.log("in storage textSelectionEnabled has been set to: ", isEli5Enabled);
+
     lastKeyPressed = null;
   } else {
     lastKeyPressed = {
@@ -120,6 +153,8 @@ function showToggleMessage(message) {
     toggleMessage?.remove();
   }, 5000);
 }
+
+
 
 // Mouseup event listener to get selected text
 document.addEventListener("mouseup", () => {
@@ -457,7 +492,6 @@ function showPopup() {
   document.body.appendChild(popup);
 }
 
-// ... existing code ...
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   try {
@@ -484,7 +518,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Update handleNewQuestion to use the new classes
-// ... existing code ...
 function handleNewQuestion(question) {
   if (!question.trim()) return;
 
@@ -539,7 +572,6 @@ function handleNewQuestion(question) {
     }
   );
 }
-// ... existing code ...
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action == "areaCaptured") {
