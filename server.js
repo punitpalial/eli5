@@ -35,9 +35,21 @@ app.get("/api/users", (req, res) => {
 });
 
 const mode = "eli5";
-// const text = "indian democracy";
 
 app.use(express.json());
+
+app.post("/selectedTextExplanation", async (req, res) => {
+  const { text } = req.body;
+  const prompt = text;
+  const result = await model.generateContent(prompt);
+  const response = result.response.text();
+
+  res.json({ explanation: response });
+});
+
+app.post("/inputTextExplanation", async (req, res) => {});
+
+app.post("/imageExplanation", async (req, res) => {});
 
 app.post("/test", async (req, res) => {
   try {
@@ -53,27 +65,6 @@ app.post("/test", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// setTimeout(async () => {
-//   try {
-//     const response = await fetch(
-//       "learningexpress-production-76da.up.railway.app/test",
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           text: "elephants of africa",
-//         }),
-//       }
-//     );
-//     const data = await response.json();
-//     console.log(data);
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// }, 5000);
 
 app.get("/gemini", async (req, res) => {
   try {
@@ -92,26 +83,6 @@ app.get("/gemini", async (req, res) => {
     console.error("Gemini API Error:", error);
     res.status(500).send(`Error: ${error.message}`);
   }
-});
-
-app.get("/users", (req, res) => {
-  const html = `
-    <ul>
-       ${users.map((user) => `<li>${user.first_name}</li>`).join("")}
-    </ul>
-    `;
-
-  res.send(html);
-});
-
-app.get("/users/:id", (req, res) => {
-  const id = Number(req.params.id);
-  console.log(id);
-  const userinfo = users.find((user) => users.id === id);
-  //   console.log(userinfo);
-  const temp = users.find((pit) => pit.id === id);
-  console.log("temp is", temp);
-  res.json(temp);
 });
 
 app

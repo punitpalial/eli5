@@ -91,26 +91,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Handle the async operation properly
     (async () => {
       try {
-        let response;
+        // let response;
 
         firstBaseText =
           mode === "eli5"
             ? "Explain the selected text or word in simple terms as if you are explaining to a 5 year old. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. "
             : "Explain the selected text or word in simple terms. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. ";
         prompt = firstBaseText + message.text;
+
+        const response = await fetch(
+          "learningexpress-production-76da.up.railway.app/test",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: prompt,
+            }),
+          }
+        );
+
+        const explaination = await response.json();
+        console.log("explaination is", explaination);
+
         // response = await run(prompt);
 
-        console.log("Before: ", response);
-        response = await testingExpressServer();
+        // console.log("Before: ", response);
+        // response = await testingExpressServer();
         // response = await testingPost(prompt);
 
-        console.log("yeh le response: ", response);
+        // console.log("yeh le response: ", response);
         // console.log("textSelected response ===>>>", response); //this works
 
-        addToHistory(message.text, response);
+        addToHistory(message.text, explaination);
 
         sendResponse({
-          sendResponseBackToContentScript: response,
+          sendResponseBackToContentScript: explaination,
           responseReceived: true,
         });
       } catch (error) {
