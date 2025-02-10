@@ -1,18 +1,8 @@
 // Import Statment to import the GoogleGenerativeAI package into my file folder. This took a lot of time to figure out properly because I couldn't provide the proper import statement.
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import { config } from "./config.js";
-// import express from "express";
-
-// const app = express();
-// const PORT = 7000;
-// app.get("/testing", (req, res) => {
-//   res.end("Hello bro! How are you!");
-// });
-
-// app.listen(PORT, () => console.log("Server Started"));
 
 async function testingExpressServer() {
-  // Method 1: Using .then()
   const fetched = await fetch(
     "https://learningexpress-production-76da.up.railway.app/gemini"
   );
@@ -24,6 +14,35 @@ async function testingExpressServer() {
 }
 
 testingExpressServer();
+
+async function testingPost(inputText) {
+  console.log("Testing post called with inputText", inputText);
+  try {
+    const response = await fetch(
+      "https://learningexpress-production-76da.up.railway.app/test",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: inputText,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("here's the data", data.explanation);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+testingPost("Masala Dosa");
 
 let text = "empty";
 let responseText = "empty";
@@ -83,6 +102,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         console.log("Before: ", response);
         response = await testingExpressServer();
+        // response = await testingPost(prompt);
+
         console.log("yeh le response: ", response);
         // console.log("textSelected response ===>>>", response); //this works
 

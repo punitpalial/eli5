@@ -16,7 +16,7 @@
   "main": "test2.js",
   "scripts": {
     "build": "webpack",
-    "start": "node geminiAPICall.js"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
