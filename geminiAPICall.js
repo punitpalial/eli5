@@ -113,7 +113,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         );
 
         const explanation = await response.json();
-        console.log("explanation is", explanation);
+        console.log("explanation is", explanation.explanation);
 
         // response = await run(prompt);
 
