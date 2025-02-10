@@ -54,6 +54,10 @@ window.addEventListener("blur", () => {
     purpleSelectionBox.remove();
     purpleSelectionBox = null;
   }
+
+  if (document.body.contains(transparentDiv)) {
+    document.body.removeChild(transparentDiv);
+  }
 });
 
 function addTransparentDiv() {

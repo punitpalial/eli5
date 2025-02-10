@@ -2,6 +2,48 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import { config } from "./config.js";
 
+async function testingExpressServer() {
+  const fetched = await fetch(
+    "https://learningexpress-production-76da.up.railway.app/gemini"
+  );
+
+  console.log("fetched", fetched);
+  const converted = await fetched.json();
+  console.log("here we go", converted.response);
+  return converted.response;
+}
+
+testingExpressServer();
+
+async function testingPost(inputText) {
+  console.log("Testing post called with inputText", inputText);
+  try {
+    const response = await fetch(
+      "https://learningexpress-production-76da.up.railway.app/test",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: inputText,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("here's the data", data.explanation);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+testingPost("Masala Dosa");
+
 let text = "empty";
 let responseText = "empty";
 let responseReceivedFromAPI = false;
@@ -56,8 +98,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             ? "Explain the selected text or word in simple terms as if you are explaining to a 5 year old. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. "
             : "Explain the selected text or word in simple terms. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. ";
         prompt = firstBaseText + message.text;
-        response = await run(prompt);
+        // response = await run(prompt);
 
+        console.log("Before: ", response);
+        response = await testingExpressServer();
+        // response = await testingPost(prompt);
+
+        console.log("yeh le response: ", response);
         // console.log("textSelected response ===>>>", response); //this works
 
         addToHistory(message.text, response);
