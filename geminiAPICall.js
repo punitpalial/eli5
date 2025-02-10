@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         prompt = firstBaseText + message.text;
 
         const response = await fetch(
-          "learningexpress-production-76da.up.railway.app/selectedTextExplanation",
+          "https://eli5-production-46b4.up.railway.app/selectedTextExplanation",
           {
             method: "POST",
             headers: {
