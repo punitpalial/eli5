@@ -1,7 +1,7 @@
-require("dotenv").config();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-const express = require("express");
+// require("dotenv").config();
+// import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import express from "express";
 
 const app = express();
 
