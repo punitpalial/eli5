@@ -15,7 +15,7 @@ async function getresponse(inputForOutput) {
   try {
     console.log("Calling Gemini API...");
     console.log("inputForOuptut", inputForOutput);
-    const result = await model.generateContent(inputForOutput);
+    const result = await model.generateContent(prompt);
     if (!result) {
       throw new Error("No response from Gemini");
     }
