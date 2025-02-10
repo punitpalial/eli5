@@ -2,47 +2,47 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import { config } from "./config.js";
 
-async function testingExpressServer() {
-  const fetched = await fetch(
-    "https://learningexpress-production-76da.up.railway.app/gemini"
-  );
+// async function testingExpressServer() {
+//   const fetched = await fetch(
+//     "https://learningexpress-production-76da.up.railway.app/gemini"
+//   );
 
-  console.log("fetched", fetched);
-  const converted = await fetched.json();
-  console.log("here we go", converted.response);
-  return converted.response;
-}
+//   console.log("fetched", fetched);
+//   const converted = await fetched.json();
+//   console.log("here we go", converted.response);
+//   return converted.response;
+// }
 
-testingExpressServer();
+// testingExpressServer();
 
-async function testingPost(inputText) {
-  console.log("Testing post called with inputText", inputText);
-  try {
-    const response = await fetch(
-      "https://learningexpress-production-76da.up.railway.app/test",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: inputText,
-        }),
-      }
-    );
+// async function testingPost(inputText) {
+//   console.log("Testing post called with inputText", inputText);
+//   try {
+//     const response = await fetch(
+//       "https://learningexpress-production-76da.up.railway.app/test",
+//       {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           text: inputText,
+//         }),
+//       }
+//     );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
 
-    const data = await response.json();
-    console.log("here's the data", data.explanation);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
+//     const data = await response.json();
+//     console.log("here's the data", data.explanation);
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// }
 
-testingPost("Masala Dosa");
+// testingPost("Masala Dosa");
 
 let text = "empty";
 let responseText = "empty";
