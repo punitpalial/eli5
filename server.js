@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const prompt =
-  "There's a girl named Chi. Write a paragraph to let her know that I love her. Also wish her happy valentine";
+  "My girlfriend's name is Arushi. Write a paragraph to let her know that I love her. Also wish her happy valentine. My name is Punit";
 
 async function getresponse(inputForOutput) {
   try {
