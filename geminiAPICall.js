@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         prompt = firstBaseText + message.text;
 
         const response = await fetch(
-          "learningexpress-production-76da.up.railway.app/test",
+          "learningexpress-production-76da.up.railway.app/selectedTextExplanation",
           {
             method: "POST",
             headers: {
@@ -112,8 +112,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         );
 
-        const explaination = await response.json();
-        console.log("explaination is", explaination);
+        const explanation = await response.json();
+        console.log("explanation is", explanation);
 
         // response = await run(prompt);
 
@@ -124,10 +124,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // console.log("yeh le response: ", response);
         // console.log("textSelected response ===>>>", response); //this works
 
-        addToHistory(message.text, explaination);
+        addToHistory(message.text, explanation);
 
         sendResponse({
-          sendResponseBackToContentScript: explaination,
+          sendResponseBackToContentScript: explanation,
           responseReceived: true,
         });
       } catch (error) {
