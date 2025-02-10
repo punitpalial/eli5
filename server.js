@@ -1,9 +1,6 @@
-// require("dotenv").config();
-// import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import express from "express";
-
-const app = express();
+import "dotenv/config";
 
 const port = process.env.PORT;
 const apiKey = process.env.API_KEY;
@@ -28,6 +25,8 @@ async function getresponse(inputForOutput) {
     throw error;
   }
 }
+
+const app = express();
 
 // Routes
 app.get("/api/users", (req, res) => {
@@ -55,26 +54,26 @@ app.post("/test", async (req, res) => {
   }
 });
 
-setTimeout(async () => {
-  try {
-    const response = await fetch(
-      "https://learningexpress-production-76da.up.railway.app/test",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: "elephants of africa",
-        }),
-      }
-    );
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}, 5000);
+// setTimeout(async () => {
+//   try {
+//     const response = await fetch(
+//       "learningexpress-production-76da.up.railway.app/test",
+//       {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           text: "elephants of africa",
+//         }),
+//       }
+//     );
+//     const data = await response.json();
+//     console.log(data);
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// }, 5000);
 
 app.get("/gemini", async (req, res) => {
   try {
