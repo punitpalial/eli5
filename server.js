@@ -48,22 +48,27 @@ app.post("/selectedTextExplanation", async (req, res) => {
   const result = await model.generateContent(prompt);
   const response = result.response.text();
 
-  console.log(count);
+  await addToHistory(prompt, response);
 
-  addToHistory(prompt, response);
+  console.log("after adding selected text", chat._history);
 
   res.json({ explanation: response });
 });
 
 app.post("/inputTextExplanation", async (req, res) => {
+  console.log(chat._history);
   const { text } = req.body;
   const prompt = text;
-  const { prevHistory } = req.body;
-  console.log("prompt is: ", prompt, " prevHistory is ", prevHistory);
+  // const { prevHistory } = req.body;
+  console.log("prompt is: ", prompt);
   // chat._history = prevHistory;
 
   const result = await chat.sendMessage(prompt);
-  const response = result.response.text();
+  const response = await result.response.text();
+
+  await addToHistory(prompt, response);
+
+  console.log("here is input ka output", response);
 
   res.json({ modelAnswer: response });
 });

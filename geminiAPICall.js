@@ -169,14 +169,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             },
             body: JSON.stringify({
               text: prompt,
-              prevHistory: chat,
+              prevHistory: "SUp",
             }),
           }
         );
         // let result = await chat.sendMessage(prompt);
-        let modelAnswer = result.response.text();
+        console.log("Result from input: ", result);
+        const data = await result.json();
+        let modelAnswer = data.modelAnswer;
 
-        // console.log("Response received:", modelAnswer);
+        console.log("Response received:", modelAnswer);
 
         addToHistory(message.text, modelAnswer);
         sendResponse({
