@@ -79,18 +79,21 @@ function changeCursor(change) {
 }
 
 document.addEventListener("keydown", (keyPressed) => {
-  if (keyPressed.key === "Alt" && isAreaScreenshotEnabled) {
-    if (!document.body.contains(transparentDiv)) {
-      addTransparentDiv();
-    }
+  if (keyPressed.key === "Alt" || keyPressed.metaKey)
+    if (isAreaScreenshotEnabled) {
+      {
+        if (!document.body.contains(transparentDiv)) {
+          addTransparentDiv();
+        }
 
-    document.body.style.cursor = "crosshair";
-    isSelecting = true;
-  }
+        document.body.style.cursor = "crosshair";
+        isSelecting = true;
+      }
+    }
 });
 
 document.addEventListener("keyup", (keyPressed) => {
-  if (keyPressed.key === "Alt") {
+  if (keyPressed.key === "Alt" || keyPressed.metaKey) {
     document.body.style.cursor = "default";
 
     if (document.body.contains(transparentDiv)) {
