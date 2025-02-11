@@ -1,82 +1,29 @@
 // Import Statment to import the GoogleGenerativeAI package into my file folder. This took a lot of time to figure out properly because I couldn't provide the proper import statement.
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
-import { config } from "./config.js";
-
-// async function testingExpressServer() {
-//   const fetched = await fetch(
-//     "https://learningexpress-production-76da.up.railway.app/gemini"
-//   );
-
-//   console.log("fetched", fetched);
-//   const converted = await fetched.json();
-//   console.log("here we go", converted.response);
-//   return converted.response;
-// }
-
-// testingExpressServer();
-
-// async function testingPost(inputText) {
-//   console.log("Testing post called with inputText", inputText);
-//   try {
-//     const response = await fetch(
-//       "https://learningexpress-production-76da.up.railway.app/test",
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           text: inputText,
-//         }),
-//       }
-//     );
-
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-
-//     const data = await response.json();
-//     console.log("here's the data", data.explanation);
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// }
-
-// testingPost("Masala Dosa");
 
 let text = "empty";
 let responseText = "empty";
 let responseReceivedFromAPI = false;
 let mode;
-const apiKeyOfGemini = config.GEMINI_API_KEY;
 
 chrome.storage.sync.get(["responseMode"], function (result) {
   mode = result.responseMode;
-
-  // console.log("responseMode in geminiAPIcall is: ", mode);
 });
 
 chrome.storage.onChanged.addListener(() => {
   chrome.storage.sync.get(["responseMode"], function (result) {
     mode = result.responseMode;
-
-    // console.log("responseMode HAS BEEN CHANGED in geminiAPIcall to: ", mode);
   });
 });
 
 // Access your API key as an environment variable (see "Set up your API key" above)
-const genAI = new GoogleGenerativeAI(apiKeyOfGemini);
+// const genAI = new GoogleGenerativeAI(apiKeyOfGemini);
 
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  systemInstructions:
-    "You are an assistant whose task is to simplify the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details. In case of a image, identify the purple box and only explain the contents within that box.",
-});
-
-// To store the chat history to have a conversation with the selected text or image
-const chat = model.startChat({
-  history: [],
-});
+// const model = genAI.getGenerativeModel({
+//   model: "gemini-1.5-flash",
+//   systemInstructions:
+//     "You are an assistant whose task is to simplify the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details. In case of a image, identify the purple box and only explain the contents within that box.",
+// });
 
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
 let firstBaseText =
@@ -114,18 +61,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         const data = await response.json();
         const explanation = await data.explanation;
-        console.log("explanation is", explanation);
-
-        // response = await run(prompt);
-
-        // console.log("Before: ", response);
-        // response = await testingExpressServer();
-        // response = await testingPost(prompt);
-
-        // console.log("yeh le response: ", response);
-        // console.log("textSelected response ===>>>", response); //this works
-
-        addToHistory(message.text, explanation);
 
         sendResponse({
           sendResponseBackToContentScript: explanation,
@@ -146,19 +81,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "getExplanationOfInputText") {
     (async () => {
       try {
-        // console.log("Processing question:", message.question || message.text);
-
-        console.log("chat is", chat);
-        console.log("chat._history is  : ", chat._history);
-
         laterBaseText =
           mode === "eli5"
             ? "Answer what's asked as if you are explaining to a 5 year old. Explain the  complex terms in simple terms as if you are explaining to a 5 year old. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: "
             : "Answer what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: ";
 
         prompt = laterBaseText + (message.question || message.text);
-
-        // "https://eli5-production-46b4.up.railway.app/inputTextExplanation"
 
         const result = await fetch(
           "https://eli5-production-46b4.up.railway.app/inputTextExplanation",
@@ -173,14 +101,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }),
           }
         );
-        // let result = await chat.sendMessage(prompt);
+
         console.log("Result from input: ", result);
         const data = await result.json();
         let modelAnswer = data.modelAnswer;
 
         console.log("Response received:", modelAnswer);
 
-        addToHistory(message.text, modelAnswer);
         sendResponse({
           modelResponse: modelAnswer,
           responseReceived: true,
@@ -219,13 +146,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         const result = await sendToAPI(message.dataUrl);
 
-        addToHistory(
-          "Identify the purple box in the image and explain only the content within the image",
-          result
-        );
-
-        // console.log("Chat history: ", chat._history);
-
         sendResponse(result);
       } catch (error) {
         console.error("Error processing image:", error);
@@ -236,37 +156,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-async function addToHistory(UserMessage, ModelResponse) {
-  try {
-    const historyUserObject = {
-      role: "user",
-      parts: [{ text: UserMessage }],
-    };
-
-    const historyModelObject = {
-      role: "model",
-      parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
-    };
-
-    chat._history.push(historyUserObject);
-    chat._history.push(historyModelObject);
-  } catch (error) {
-    console.log("Error adding to history", error);
-  }
-}
-
-async function run(prompt) {
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-
-    text = response.text();
-    return text;
-  } catch (error) {
-    console.log("this is the error => ", error);
-  }
-}
-
 async function sendToAPI(dataUrl) {
   try {
     let base64Image = dataUrl.split(",")[1];
@@ -275,16 +164,6 @@ async function sendToAPI(dataUrl) {
       mode === "eli5"
         ? "Find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area'. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER as if you are explaining to a 5 year old. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language as if you are explaining to a 5 year old. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation."
         : "Find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area'. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER in simple terms. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation.";
-
-    // const imageResult = await model.generateContent([
-    //   {
-    //     inlineData: {
-    //       data: base64Image,
-    //       mimeType: "image/png",
-    //     },
-    //   },
-    //   promptPrefix,
-    // ]);
 
     const imageResult = await fetch(
       "https://eli5-production-46b4.up.railway.app/imageExplanation",
