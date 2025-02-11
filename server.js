@@ -22,56 +22,60 @@ const chat = model.startChat({
 });
 
 app.post("/selectedTextExplanation", async (req, res) => {
-  const { text } = req.body;
-  const prompt = text;
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
+  try {
+    const { text } = req.body;
+    const prompt = text;
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
 
-  chat._history = [];
+    chat._history = [];
 
-  await addToHistory(prompt, response);
+    await addToHistory(prompt, response);
 
-  console.log("after adding selected text", chat._history);
-
-  res.json({ explanation: response });
+    res.json({ explanation: response });
+  } catch (error) {
+    console.log("Error in getting the explanation of the selected text", error);
+  }
 });
 
 app.post("/inputTextExplanation", async (req, res) => {
-  console.log(chat._history);
-  const { text } = req.body;
-  const prompt = text;
+  try {
+    const { text } = req.body;
+    const prompt = text;
 
-  const result = await chat.sendMessage(prompt);
-  const response = await result.response.text();
+    const result = await chat.sendMessage(prompt);
+    const response = await result.response.text();
 
-  await addToHistory(prompt, response);
+    await addToHistory(prompt, response);
 
-  console.log("here is input ka output", response);
-
-  res.json({ modelAnswer: response });
+    res.json({ modelAnswer: response });
+  } catch (error) {
+    console.log("Error in getting the explanation of the input", error);
+  }
 });
 
 app.post("/imageExplanation", async (req, res) => {
-  const { text } = req.body;
-  const { imgData } = req.body;
+  try {
+    const { text } = req.body;
+    const { imgData } = req.body;
 
-  console.log("Text is", text);
-
-  const imageResult = await model.generateContent([
-    {
-      inlineData: {
-        data: imgData,
-        mimeType: "image/png",
+    const imageResult = await model.generateContent([
+      {
+        inlineData: {
+          data: imgData,
+          mimeType: "image/png",
+        },
       },
-    },
-    text,
-  ]);
+      text,
+    ]);
 
-  const responseText = imageResult.response.text();
+    const responseText = imageResult.response.text();
 
-  await addToHistory(text, responseText);
-  console.log("responseText ", responseText);
-  res.json({ modelAnswer: responseText });
+    await addToHistory(text, responseText);
+    res.json({ modelAnswer: responseText });
+  } catch (error) {
+    console.log("Error in getting the explanation of the image", error);
+  }
 });
 
 async function addToHistory(UserMessage, ModelResponse) {
