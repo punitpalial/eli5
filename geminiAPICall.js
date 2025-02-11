@@ -161,7 +161,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // "https://eli5-production-46b4.up.railway.app/inputTextExplanation"
 
         const result = await fetch(
-          "http://localhost:7000/inputTextExplanation",
+          "https://eli5-production-46b4.up.railway.app/inputTextExplanation",
           {
             method: "POST",
             headers: {
