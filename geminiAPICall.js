@@ -276,17 +276,38 @@ async function sendToAPI(dataUrl) {
         ? "Find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area'. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER as if you are explaining to a 5 year old. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language as if you are explaining to a 5 year old. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation."
         : "Find the BOX WITH PURPLE BORDER in the image. If you can't see the BOX WITH PURPLE BORDER or if you are not 100% confident about the location of the BOX WITH PURPLE BORDER or if the BOX WITH PURPLE BORDER is empty and has nothing in it then strictly don't answer this question and simply reply with - 'Selected area is too small, please select a larger area'. Only when you have accurately located the BOX WITH PURPLE BORDER and made sure that the box is not empty, look inside only the BOX WITH PURPLE BORDER. Explain everything inside that BOX WITH PURPLE BORDER in simple terms. If there are complex terms, complex words or any code inside that BOX WITH PURPLE BORDER, then explain them all using simple language. If there is an abbrevation, then tell its fullform based on the context inside the BOX WITH PURPLE BORDER. If you don't know something, simply say that you don't know instead of making things up. Use the context of the image to explain the content inside the BOX WITH PURPLE BORDER but the main context is only the PURPLE boc. In your answer don't use the words 'BOX WITH PURPLE BORDER'. Don't start your answer with 'Here's a summary' etc. simply start with the explanation.";
 
-    const imageResult = await model.generateContent([
-      {
-        inlineData: {
-          data: base64Image,
-          mimeType: "image/png",
-        },
-      },
-      promptPrefix,
-    ]);
+    // const imageResult = await model.generateContent([
+    //   {
+    //     inlineData: {
+    //       data: base64Image,
+    //       mimeType: "image/png",
+    //     },
+    //   },
+    //   promptPrefix,
+    // ]);
 
-    responseText = imageResult.response.text();
+    const imageResult = await fetch(
+      "https://eli5-production-46b4.up.railway.app/imageExplanation",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: promptPrefix,
+          imgData: base64Image,
+        }),
+      }
+    );
+
+    console.log("imageResult ", imageResult);
+
+    const data = await imageResult.json();
+
+    console.log("data ", data);
+    responseText = data.modelAnswer;
+    console.log("responseText is ", responseText);
+
     responseReceivedFromAPI = true;
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {

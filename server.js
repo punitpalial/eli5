@@ -40,13 +40,16 @@ app.get("/api/users", (req, res) => {
 
 const mode = "eli5";
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.post("/selectedTextExplanation", async (req, res) => {
   const { text } = req.body;
   const prompt = text;
   const result = await model.generateContent(prompt);
   const response = result.response.text();
+
+  chat._history = [];
 
   await addToHistory(prompt, response);
 
@@ -60,7 +63,7 @@ app.post("/inputTextExplanation", async (req, res) => {
   const { text } = req.body;
   const prompt = text;
   // const { prevHistory } = req.body;
-  console.log("prompt is: ", prompt);
+  // console.log("prompt is: ", prompt);
   // chat._history = prevHistory;
 
   const result = await chat.sendMessage(prompt);
@@ -73,7 +76,28 @@ app.post("/inputTextExplanation", async (req, res) => {
   res.json({ modelAnswer: response });
 });
 
-app.post("/imageExplanation", async (req, res) => {});
+app.post("/imageExplanation", async (req, res) => {
+  const { text } = req.body;
+  const { imgData } = req.body;
+
+  console.log("Text is", text);
+
+  const imageResult = await model.generateContent([
+    {
+      inlineData: {
+        data: imgData,
+        mimeType: "image/png",
+      },
+    },
+    text,
+  ]);
+
+  const responseText = imageResult.response.text();
+
+  await addToHistory(text, responseText);
+  console.log("responseText ", responseText);
+  res.json({ modelAnswer: responseText });
+});
 
 app.post("/test", async (req, res) => {
   try {
