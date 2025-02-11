@@ -10,27 +10,12 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const app = express();
 
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
 const chat = model.startChat({
   history: [],
 });
-
-async function getresponse(inputForOutput) {
-  try {
-    console.log("Calling Gemini API...");
-    console.log("inputForOuptut", inputForOutput);
-    const result = await model.generateContent(prompt);
-    if (!result) {
-      throw new Error("No response from Gemini");
-    }
-    return result;
-  } catch (error) {
-    console.error("Error in getresponse:", error);
-    throw error;
-  }
-}
-
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.post("/selectedTextExplanation", async (req, res) => {
   const { text } = req.body;
