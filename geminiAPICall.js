@@ -112,8 +112,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         );
 
-        const explanation = await response.json();
-        console.log("explanation is", explanation.explanation);
+        const data = await response.json();
+        const explanation = await data.explanation;
+        console.log("explanation is", explanation);
 
         // response = await run(prompt);
 
@@ -153,7 +154,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             : "Answer what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: ";
 
         prompt = laterBaseText + (message.question || message.text);
-        let result = await chat.sendMessage(prompt);
+
+        const result = await fetch(
+          "https://eli5-production-46b4.up.railway.app/inputTextExplanation",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: prompt,
+              prevHistory: chat.history,
+            }),
+          }
+        );
+        // let result = await chat.sendMessage(prompt);
         let modelAnswer = result.response.text();
 
         // console.log("Response received:", modelAnswer);

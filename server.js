@@ -11,6 +11,10 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 const prompt =
   "My girlfriend's name is Arushi. Write a paragraph to let her know that I love her. Also wish her happy valentine. My name is Punit";
 
+const chat = model.startChat({
+  history: [],
+});
+
 async function getresponse(inputForOutput) {
   try {
     console.log("Calling Gemini API...");
@@ -47,7 +51,18 @@ app.post("/selectedTextExplanation", async (req, res) => {
   res.json({ explanation: response });
 });
 
-app.post("/inputTextExplanation", async (req, res) => {});
+app.post("/inputTextExplanation", async (req, res) => {
+  const { text } = req.body;
+  const prompt = text;
+  const { prevHistory } = req.body;
+
+  chat._history = prevHistory;
+
+  const result = await chat.sendMessage(prompt);
+  const response = result.response.text();
+
+  res.json({ modelAnswer: response });
+});
 
 app.post("/imageExplanation", async (req, res) => {});
 
