@@ -2,7 +2,4 @@
 node_modules
 =======
 dist
-node_modules
-temp
-config.js
 .env

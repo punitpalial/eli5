@@ -1,5 +1,5 @@
 // Import Statment to import the GoogleGenerativeAI package into my file folder. This took a lot of time to figure out properly because I couldn't provide the proper import statement.
-import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
+// import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 
 let text = "empty";
 let responseText = "empty";
