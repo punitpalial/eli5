@@ -55,7 +55,7 @@ app.post("/inputTextExplanation", async (req, res) => {
   const { text } = req.body;
   const prompt = text;
   const { prevHistory } = req.body;
-
+  console.log("prevHistory is", prevHistory);
   chat._history = prevHistory;
 
   const result = await chat.sendMessage(prompt);
