@@ -148,6 +148,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         // console.log("Processing question:", message.question || message.text);
 
+        console.log("chat is", chat);
+        console.log("chat._history is", chat._history);
+
         laterBaseText =
           mode === "eli5"
             ? "Answer what's asked as if you are explaining to a 5 year old. Explain the  complex terms in simple terms as if you are explaining to a 5 year old. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: "
@@ -164,7 +167,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             },
             body: JSON.stringify({
               text: prompt,
-              prevHistory: chat.history,
+              prevHistory: chat._history,
             }),
           }
         );
