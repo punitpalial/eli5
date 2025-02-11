@@ -50,7 +50,7 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
   console.log(count);
 
-  addToHistory(message.text, explanation);
+  addToHistory(prompt, response);
 
   res.json({ explanation: response });
 });
