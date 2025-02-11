@@ -149,7 +149,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // console.log("Processing question:", message.question || message.text);
 
         console.log("chat is", chat);
-        console.log("chat._history is", chat._history);
+        console.log("chat._history is  : ", chat._history);
 
         laterBaseText =
           mode === "eli5"
@@ -158,8 +158,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         prompt = laterBaseText + (message.question || message.text);
 
+        // "https://eli5-production-46b4.up.railway.app/inputTextExplanation"
+
         const result = await fetch(
-          "https://eli5-production-46b4.up.railway.app/inputTextExplanation",
+          "http://localhost:7000/inputTextExplanation",
           {
             method: "POST",
             headers: {
@@ -167,7 +169,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             },
             body: JSON.stringify({
               text: prompt,
-              prevHistory: chat._history,
+              prevHistory: chat,
             }),
           }
         );

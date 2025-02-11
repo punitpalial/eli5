@@ -42,12 +42,16 @@ const mode = "eli5";
 
 app.use(express.json());
 
+let count = 0;
+
 app.post("/selectedTextExplanation", async (req, res) => {
   const { text } = req.body;
   const prompt = text;
   const result = await model.generateContent(prompt);
   const response = result.response.text();
 
+  count = count + 1;
+  console.log(count);
   res.json({ explanation: response });
 });
 
