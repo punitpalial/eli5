@@ -52,6 +52,9 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
   count = count + 1;
   console.log(count);
+
+  addToHistory(message.text, explanation);
+
   res.json({ explanation: response });
 });
 
@@ -60,7 +63,7 @@ app.post("/inputTextExplanation", async (req, res) => {
   const prompt = text;
   const { prevHistory } = req.body;
   console.log("prompt is: ", prompt, " prevHistory is ", prevHistory);
-  chat._history = prevHistory;
+  // chat._history = prevHistory;
 
   const result = await chat.sendMessage(prompt);
   const response = result.response.text();
@@ -104,22 +107,23 @@ app.get("/gemini", async (req, res) => {
   }
 });
 
-app
-  .route("/api/users/:name")
-  .get((req, res) => {
-    const name = req.params.name;
-    console.log(name);
-    const userinfo = users.find((user) => user.first_name === name);
-    //   console.log(userinfo);
-    const temp = users.find((pit) => pit.first_name === name);
-    console.log("temp is", temp);
-    res.json(temp);
-  })
-  .put((req, res) => {
-    res.json({ status: "Coming soon" });
-  })
-  .patch((req, res) => {
-    res.json({ status: "Coming soon" });
-  });
+async function addToHistory(UserMessage, ModelResponse) {
+  try {
+    const historyUserObject = {
+      role: "user",
+      parts: [{ text: UserMessage }],
+    };
+
+    const historyModelObject = {
+      role: "model",
+      parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
+    };
+
+    chat._history.push(historyUserObject);
+    chat._history.push(historyModelObject);
+  } catch (error) {
+    console.log("Error adding to history", error);
+  }
+}
 
 app.listen(port, () => console.log("Server Started"));
