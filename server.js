@@ -71,7 +71,7 @@ app.post("/imageExplanation", async (req, res) => {
           mimeType: "image/png",
         },
       },
-      text,
+      mode,
     ]);
 
     const responseText = imageResult.response.text();
