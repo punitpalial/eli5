@@ -119,7 +119,7 @@ document.addEventListener("mousedown", (e) => {
 
   purpleSelectionBox = document.createElement("div");
   purpleSelectionBox.style.position = "absolute";
-  purpleSelectionBox.style.border = "2px dashed transparent";
+  purpleSelectionBox.style.border = "3px dashed transparent";
   purpleSelectionBox.style.backgroundImage =
     "linear-gradient(90deg, #6600ff #800080)";
   purpleSelectionBox.style.backgroundClip = "padding-box";
@@ -197,7 +197,6 @@ document.addEventListener("mouseup", async (e) => {
 
   isSelecting = false;
 
-
   // Get the final dimensions including border adjustment
   let finalDimensions = {
     x: Math.min(startX, endX) - 2, // Adjust for border
@@ -225,13 +224,11 @@ document.addEventListener("mouseup", async (e) => {
   }
 
   if (finalDimensions.width > 0 && finalDimensions.height > 0) {
-
     chrome.runtime.sendMessage(
       {
         action: "captureVisibleTab",
       },
       (dataUrl) => {
-
         chrome.runtime.sendMessage(
           {
             action: "fetchExplanation",
