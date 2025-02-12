@@ -28,12 +28,13 @@ app.get("/popupClosed", async(req, res) => {
 
 app.post("/selectedTextExplanation", async (req, res) => {
   try {
-    const { text } = req.body;
-    const prompt = text;
+    const { mode } = req.body;
+    const { selectedText } = req.body;
+    const prompt = mode + selectedText;
     const result = await model.generateContent(prompt);
     const response = result.response.text();
 
-    await addToHistory(prompt, response);
+    await addToHistory(selectedText, response);
 
     res.json({ explanation: response });
   } catch (error) {
@@ -43,13 +44,14 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
 app.post("/inputTextExplanation", async (req, res) => {
   try {
-    const { text } = req.body;
-    const prompt = text;
+    const { mode } = req.body;
+    const { inputQuestion } = req.body;
+    const prompt = mode + inputQuestion;
 
     const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
 
-    await addToHistory(prompt, response);
+    await addToHistory(inputQuestion, response);
 
     res.json({ modelAnswer: response });
   } catch (error) {
@@ -59,7 +61,7 @@ app.post("/inputTextExplanation", async (req, res) => {
 
 app.post("/imageExplanation", async (req, res) => {
   try {
-    const { text } = req.body;
+    const { mode } = req.body;
     const { imgData } = req.body;
 
     const imageResult = await model.generateContent([
@@ -74,7 +76,7 @@ app.post("/imageExplanation", async (req, res) => {
 
     const responseText = imageResult.response.text();
 
-    await addToHistory(text, responseText);
+    await addToHistory(mode, responseText);
     res.json({ modelAnswer: responseText });
   } catch (error) {
     console.log("Error in getting the explanation of the image", error);

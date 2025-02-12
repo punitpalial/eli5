@@ -54,7 +54,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              text: prompt,
+              mode: firstBaseText,
+              selectedText: message.text
             }),
           }
         );
@@ -87,6 +88,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             : "Answer what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: ";
 
         prompt = laterBaseText + (message.question || message.text);
+        const userQuestion = message.question || message.text;
 
         const result = await fetch(
           "https://eli5-production-46b4.up.railway.app/inputTextExplanation",
@@ -96,8 +98,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              text: prompt,
-              prevHistory: "SUp",
+              mode: laterBaseText,
+              inputQuestion: userQuestion
             }),
           }
         );
@@ -173,7 +175,7 @@ async function sendToAPI(dataUrl) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          text: promptPrefix,
+          mode: promptPrefix,
           imgData: base64Image,
         }),
       }
