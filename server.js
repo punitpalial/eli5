@@ -36,7 +36,7 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
     await addToHistory(selectedText, response);
 
-    res.json({ explanation: result.stream });
+    res.json({ explanation: response });
   } catch (error) {
     console.log("Error in getting the explanation of the selected text", error);
   }
