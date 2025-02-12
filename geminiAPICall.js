@@ -15,9 +15,9 @@ chrome.storage.onChanged.addListener(() => {
   });
 });
 
-const chat = model.startChat({
-  history: [],
-});
+// const chat = model.startChat({
+//   history: [],
+// });
 
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
 let firstBaseText =
