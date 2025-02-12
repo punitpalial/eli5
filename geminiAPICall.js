@@ -15,6 +15,10 @@ chrome.storage.onChanged.addListener(() => {
   });
 });
 
+const chat = model.startChat({
+  history: [],
+});
+
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
 let firstBaseText =
   "Explain the selected text or word in simple terms. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't knwo something, simply say that you dont know instead of making things up. ";
