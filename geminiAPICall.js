@@ -1,5 +1,4 @@
 // Import Statment to import the GoogleGenerativeAI package into my file folder. This took a lot of time to figure out properly because I couldn't provide the proper import statement.
-// import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 
 let text = "empty";
 let responseText = "empty";
@@ -16,15 +15,6 @@ chrome.storage.onChanged.addListener(() => {
   });
 });
 
-// Access your API key as an environment variable (see "Set up your API key" above)
-// const genAI = new GoogleGenerativeAI(apiKeyOfGemini);
-
-// const model = genAI.getGenerativeModel({
-//   model: "gemini-1.5-flash",
-//   systemInstructions:
-//     "You are an assistant whose task is to simplify the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details. In case of a image, identify the purple box and only explain the contents within that box.",
-// });
-
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
 let firstBaseText =
   "Explain the selected text or word in simple terms. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't knwo something, simply say that you dont know instead of making things up. ";
@@ -38,8 +28,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Handle the async operation properly
     (async () => {
       try {
-        // let response;
-
         firstBaseText =
           mode === "eli5"
             ? "Explain the selected text or word in simple terms as if you are explaining to a 5 year old. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. "
@@ -55,7 +43,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             },
             body: JSON.stringify({
               mode: firstBaseText,
-              selectedText: message.text
+              selectedText: message.text,
             }),
           }
         );
@@ -99,7 +87,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             },
             body: JSON.stringify({
               mode: laterBaseText,
-              inputQuestion: userQuestion
+              inputQuestion: userQuestion,
             }),
           }
         );

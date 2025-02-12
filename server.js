@@ -31,17 +31,10 @@ app.post("/selectedTextExplanation", async (req, res) => {
     const { mode } = req.body;
     const { selectedText } = req.body;
     const prompt = mode + selectedText;
-    // const result = await model.generateContent(prompt);
-    // const response = result.response.text();
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
 
-    const result = await model.generateContentStream(prompt);
-
-    for await (const chunk of result.stream) {
-      const chunkText = chunk.text();
-      res.json({ explanation: chunkText });
-    }
-
-    // await addToHistory(selectedText, response);
+    await addToHistory(selectedText, response);
 
     res.json({ explanation: result.stream });
   } catch (error) {
