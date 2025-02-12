@@ -84,8 +84,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         laterBaseText =
           mode === "eli5"
-            ? "Answer what's asked as if you are explaining to a 5 year old. Explain the  complex terms in simple terms as if you are explaining to a 5 year old. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: "
-            : "Answer what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use your existing knowledge to answer the question if the context provided in the chat history is not sufficient. Here's the question: ";
+            ? "Answer and Explain what's asked as if you are explaining to a 5 year old. Explain the  complex terms in simple terms as if you are explaining to a 5 year old. If you don't know something, simply say that you don't know instead of making things up. Use the previous chat history as additional context to answer the question.. Here's the question: "
+            : "Answer and Explain what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use the previous chat history as additional context to answer the question. Here's the question: ";
 
         prompt = laterBaseText + (message.question || message.text);
         const userQuestion = message.question || message.text;

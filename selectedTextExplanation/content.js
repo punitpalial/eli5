@@ -317,7 +317,6 @@ function showPopup() {
       window.getSelection().removeAllRanges();
     }
     popupOpen = false;
-    fetch("https://eli5-production-46b4.up.railway.app/popupClosed");
   });
 
   // Append elements to header

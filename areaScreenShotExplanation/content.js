@@ -123,7 +123,7 @@ document.addEventListener("mousedown", (e) => {
   purpleSelectionBox.style.backgroundImage =
     "linear-gradient(90deg, #6600ff #800080)";
   purpleSelectionBox.style.backgroundClip = "padding-box";
-  purpleSelectionBox.style.borderRadius = "4px";
+  purpleSelectionBox.style.borderRadius = "6px";
   purpleSelectionBox.style.boxShadow = `
     0 0 0 2px transparent,
     0 0 8px 2px rgba(255, 0, 0, 0.3),
