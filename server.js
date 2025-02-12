@@ -21,14 +21,17 @@ const chat = model.startChat({
   history: [],
 });
 
+app.get("/popupClosed", async(req, res) => {
+  chat._history = [];
+  console.log("han bhai band kar diya")
+})
+
 app.post("/selectedTextExplanation", async (req, res) => {
   try {
     const { text } = req.body;
     const prompt = text;
     const result = await model.generateContent(prompt);
     const response = result.response.text();
-
-    chat._history = [];
 
     await addToHistory(prompt, response);
 

@@ -14,9 +14,6 @@ chrome.storage.sync.get(
   function (result) {
     isAreaScreenshotEnabled = result.areaScreenshotEnabled ?? true;
     responseMode = result.responseMode ?? "eli5";
-
-    // console.log("responseMode is: ", responseMode);
-    // console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
   }
 );
 
@@ -26,9 +23,6 @@ chrome.storage.onChanged.addListener(() => {
     function (result) {
       isAreaScreenshotEnabled = result.areaScreenshotEnabled ?? true;
       responseMode = result.responseMode ?? "eli5";
-
-      // console.log("responseMode is: ", responseMode);
-      // console.log("isAreaScreenshotEnabled: ", isAreaScreenshotEnabled);
     }
   );
 });
@@ -199,14 +193,10 @@ document.addEventListener("mouseup", async (e) => {
 
   document.body.style.cursor = "default";
 
-  // if (intiateScreenshot) {
-  //   intiateScreenshot = false;
-  //   document.body.removeChild(transparentDiv);
-  // }
+  intiateScreenshot = false;
 
   isSelecting = false;
 
-  // console.log("endX:", endX, "endY:", endY);
 
   // Get the final dimensions including border adjustment
   let finalDimensions = {
@@ -235,14 +225,12 @@ document.addEventListener("mouseup", async (e) => {
   }
 
   if (finalDimensions.width > 0 && finalDimensions.height > 0) {
-    // console.log("Selection dimensions:", finalDimensions);
 
     chrome.runtime.sendMessage(
       {
         action: "captureVisibleTab",
       },
       (dataUrl) => {
-        // console.log("Tab Captured:", dataUrl);
 
         chrome.runtime.sendMessage(
           {
