@@ -18,15 +18,17 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,  // Use environment variable in production
-  resave: false,
-  saveUninitialized: true,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET, // Use environment variable in production
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
 const chat = model.startChat({
   history: [],
@@ -34,7 +36,8 @@ const chat = model.startChat({
 
 app.get("/popupClosed", async (req, res) => {
   chat._history = [];
-  console.log("han bhai band kar diya");
+
+  console.log(chat._history, "han bhai band kar diya");
 });
 
 app.post("/selectedTextExplanation", async (req, res) => {
@@ -46,6 +49,10 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
     await addToHistory(selectedText, response);
 
+    console.log(
+      `Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
+    );
+
     res.json({ explanation: response });
   } catch (error) {
     console.log("Error in getting the explanation of the selected text", error);
@@ -54,12 +61,11 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
 app.post("/inputTextExplanation", async (req, res) => {
   try {
-
     if (!req.session.chat) {
       req.session.chat = model.startChat({
         history: [],
       });
-      console.log('New chat session created:', req.sessionID);
+      console.log("New chat session created:", req.sessionID);
     }
 
     const { mode, inputQuestion } = req.body;
@@ -69,6 +75,10 @@ app.post("/inputTextExplanation", async (req, res) => {
     const response = await result.response.text();
 
     await addToHistory(inputQuestion, response);
+
+    console.log(
+      `Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
+    );
 
     res.json({ modelAnswer: response });
   } catch (error) {
