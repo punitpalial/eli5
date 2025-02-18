@@ -57,8 +57,10 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
     await addToHistory(selectedText, response);
 
+    console.log("session chat history", req.session.chat._history);
+
     console.log(
-      `Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
+      `For selected text: Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
     );
 
     res.json({ explanation: response });
@@ -84,8 +86,10 @@ app.post("/inputTextExplanation", async (req, res) => {
 
     await addToHistory(inputQuestion, response);
 
+    console.log("session chat history", req.session.chat._history);
+
     console.log(
-      `Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
+      `For input text: Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
     );
 
     res.json({ modelAnswer: response });
