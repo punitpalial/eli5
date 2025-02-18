@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import express from "express";
+import session from 'express-session';
 import "dotenv/config";
 
 const port = process.env.PORT;
@@ -17,6 +18,16 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+app.use(session({
+  secret: process.env.SESSION_SECRET,  // Use environment variable in production
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
 const chat = model.startChat({
   history: [],
 });
@@ -28,10 +39,9 @@ app.get("/popupClosed", async (req, res) => {
 
 app.post("/selectedTextExplanation", async (req, res) => {
   try {
-    const { mode } = req.body;
-    const { selectedText } = req.body;
+    const { mode, selectedText } = req.body;
     const prompt = mode + selectedText;
-    const result = await model.generateContent(prompt);
+    const result = await req.session.model.generateContent(prompt);
     const response = result.response.text();
 
     await addToHistory(selectedText, response);
@@ -44,11 +54,18 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
 app.post("/inputTextExplanation", async (req, res) => {
   try {
-    const { mode } = req.body;
-    const { inputQuestion } = req.body;
+
+    if (!req.session.chat) {
+      req.session.chat = model.startChat({
+        history: [],
+      });
+      console.log('New chat session created:', req.sessionID);
+    }
+
+    const { mode, inputQuestion } = req.body;
     const prompt = mode + inputQuestion;
 
-    const result = await chat.sendMessage(prompt);
+    const result = await req.session.chat.sendMessage(prompt);
     const response = await result.response.text();
 
     await addToHistory(inputQuestion, response);
