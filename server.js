@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import express from "express";
-import session from 'express-session';
+import session from "express-session";
 import "dotenv/config";
 
 const port = process.env.PORT;
