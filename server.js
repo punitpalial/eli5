@@ -42,6 +42,14 @@ app.get("/popupClosed", async (req, res) => {
 
 app.post("/selectedTextExplanation", async (req, res) => {
   try {
+
+    if (!req.session.chat) {
+      req.session.chat = model.startChat({
+        history: [],
+      });
+      console.log("New chat session created:", req.sessionID);
+    }
+    
     const { mode, selectedText } = req.body;
     const prompt = mode + selectedText;
     const result = await req.session.model.generateContent(prompt);
