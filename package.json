@@ -5,6 +5,7 @@
     "dotenv": "^16.4.5",
     "dotenv-webpack": "^8.1.0",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "jsdo": "^4.3.12",
     "jsdom": "^24.1.0",
     "tailwindcss": "^3.4.17"
