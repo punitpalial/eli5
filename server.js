@@ -2,8 +2,8 @@ import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/in
 import express from "express";
 import "dotenv/config";
 
-const port = 3000;
-const apiKey = "AIzaSyCJxI6rWNMq0Kl5rwr0PhMJvdomCCd7n7c";
+const port = process.env.PORT;
+const apiKey = process.env.API_KEY;
 
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
