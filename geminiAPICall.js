@@ -1,4 +1,11 @@
 // Import Statment to import the GoogleGenerativeAI package into my file folder. This took a lot of time to figure out properly because I couldn't provide the proper import statement.
+import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
+const genAI = new GoogleGenerativeAI("YOUR_API_KEY");
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.0-flash",
+  systemInstructions:
+    "You are an assistant whose task is to simplify the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details. In case of a image, identify the purple box and only explain the contents within that box.",
+});
 
 let text = "empty";
 let responseText = "empty";
@@ -15,9 +22,9 @@ chrome.storage.onChanged.addListener(() => {
   });
 });
 
-// const chat = model.startChat({
-//   history: [],
-// });
+const chat = model.startChat({
+  history: [],
+});
 
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
 let firstBaseText =
@@ -54,6 +61,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         const data = await response.json();
         const explanation = await data.explanation;
+
+        await addToHistory(firstBaseText, explanation);
 
         sendResponse({
           sendResponseBackToContentScript: explanation,
@@ -92,6 +101,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             body: JSON.stringify({
               mode: laterBaseText,
               inputQuestion: userQuestion,
+              chathistory: chat,
             }),
           }
         );
@@ -101,6 +111,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         let modelAnswer = data.modelAnswer;
 
         console.log("Response received:", modelAnswer);
+
+        addToHistory(laterBaseText, modelAnswer);
 
         sendResponse({
           modelResponse: modelAnswer,
@@ -181,6 +193,8 @@ async function sendToAPI(dataUrl) {
     responseText = data.modelAnswer;
     console.log("responseText is ", responseText);
 
+    await addToHistory(promptPrefix, responseText);
+
     responseReceivedFromAPI = true;
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -196,5 +210,24 @@ async function sendToAPI(dataUrl) {
   } catch (error) {
     console.error("Failed to generate content:", error);
     throw error; // Propagate the error
+  }
+}
+
+async function addToHistory(UserMessage, ModelResponse) {
+  try {
+    const historyUserObject = {
+      role: "user",
+      parts: [{ text: UserMessage }],
+    };
+
+    const historyModelObject = {
+      role: "model",
+      parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
+    };
+
+    chat._history.push(historyUserObject);
+    chat._history.push(historyModelObject);
+  } catch (error) {
+    console.log("Error adding to history", error);
   }
 }

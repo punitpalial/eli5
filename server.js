@@ -1,10 +1,9 @@
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
 import express from "express";
-import session from "express-session";
 import "dotenv/config";
 
-const port = process.env.PORT;
-const apiKey = process.env.API_KEY;
+const port = 3000;
+const apiKey = "AIzaSyCJxI6rWNMq0Kl5rwr0PhMJvdomCCd7n7c";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
@@ -13,22 +12,13 @@ const model = genAI.getGenerativeModel({
     "You are an assistant whose task is to simplify the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details. In case of a image, identify the purple box and only explain the contents within that box.",
 });
 
+const testresponse = await model.generateContent("tell me about chickens");
+// console.log("Testresponse ", testresponse.response.text());
+
 const app = express();
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET, // Use environment variable in production
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
 
 const chat = model.startChat({
   history: [],
@@ -42,14 +32,6 @@ app.get("/popupClosed", async (req, res) => {
 
 app.post("/selectedTextExplanation", async (req, res) => {
   try {
-
-    if (!req.session.chat) {
-      req.session.chat = model.startChat({
-        history: [],
-      });
-      console.log("New chat session created:", req.sessionID);
-    }
-
     const { mode, selectedText } = req.body;
     const prompt = mode + selectedText;
     const result = await model.generateContent(prompt);
@@ -57,11 +39,7 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
     await addToHistory(selectedText, response);
 
-    console.log("session chat history", req.session.chat._history);
-
-    console.log(
-      `For selected text: Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
-    );
+    console.log("session chat history", chat._history);
 
     res.json({ explanation: response });
   } catch (error) {
@@ -71,31 +49,56 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
 app.post("/inputTextExplanation", async (req, res) => {
   try {
-    if (!req.session.chat) {
-      req.session.chat = model.startChat({
-        history: [],
-      });
-      console.log("New chat session created:", req.sessionID);
-    }
-
     const { mode, inputQuestion } = req.body;
     const prompt = mode + inputQuestion;
 
-    const result = await req.session.chat.sendMessage(prompt);
+    const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
 
     await addToHistory(inputQuestion, response);
 
-    console.log("session chat history", req.session.chat._history);
-
-    console.log(
-      `For input text: Session ${req.sessionID} chat history size: ${req.session.chat._history.length}`
-    );
+    console.log("session chat history", chat._history);
 
     res.json({ modelAnswer: response });
   } catch (error) {
     console.log("Error in getting the explanation of the input", error);
   }
+});
+
+app.post("/testing", async (req, res) => {
+  try {
+    const { chathistory, selectedText } = req.body;
+
+    console.log("yeah my boy testing was called");
+
+    const prompt = "Tell me about architecture of rome";
+
+    console.log(
+      "selectedtext: ",
+      selectedText,
+      " session chat history is: ",
+      chathistory._history
+    );
+
+    console.log("prompt : ", prompt);
+
+    const result = await chat.sendMessage(prompt);
+
+    console.log("Result: ", result);
+    const response = await result.response.text();
+
+    console.log("response: ", response);
+
+    await addToHistory(prompt, response);
+
+    console.log("response: ", response);
+
+    console.log("session chat history", chathistory._history);
+
+    // console.log("chathistory is ", chathistory);
+
+    res.json({ modelAnswer: response });
+  } catch (error) {}
 });
 
 app.post("/imageExplanation", async (req, res) => {
