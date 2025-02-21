@@ -90,9 +90,7 @@ document.addEventListener("keydown", (event) => {
       action: "updateTextSelectionToggle",
     });
 
-    if (isEli5Enabled) {
-      isEli5Enabled = !isEli5Enabled;
-    }
+    isEli5Enabled = !isEli5Enabled;
 
     showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
 
