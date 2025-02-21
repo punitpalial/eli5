@@ -189,7 +189,7 @@ async function sendToAPI(dataUrl) {
 
     const data = await imageResult.json();
 
-    console.log("data ", data);
+    // console.log("data ", data);
     responseText = data.modelAnswer;
     console.log("responseText is ", responseText);
 
