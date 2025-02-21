@@ -2,8 +2,11 @@ import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/in
 import express from "express";
 import "dotenv/config";
 
-const port = process.env.PORT;
-const apiKey = process.env.API_KEY;
+// const port = process.env.PORT;
+// const apiKey = process.env.API_KEY;
+
+const port = 3000;
+const apiKey = "AIzaSyCJxI6rWNMq0Kl5rwr0PhMJvdomCCd7n7c";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
@@ -20,7 +23,7 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-const chat = model.startChat({
+let chat = model.startChat({
   history: [],
 });
 
@@ -52,12 +55,13 @@ app.post("/inputTextExplanation", async (req, res) => {
     const { mode, inputQuestion, chathistory } = req.body;
     const prompt = mode + inputQuestion;
 
-    const result = await chathistory.sendMessage(prompt);
+    chat._history = chathistory._history;
+    const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
 
     await addToHistory(inputQuestion, response);
 
-    console.log("session chat history", chathistory._history);
+    console.log("Chat history is: ", chathistory._history);
 
     res.json({ modelAnswer: response });
   } catch (error) {

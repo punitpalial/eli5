@@ -1,6 +1,6 @@
 // Import Statment to import the GoogleGenerativeAI package into my file folder. This took a lot of time to figure out properly because I couldn't provide the proper import statement.
 import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
-const genAI = new GoogleGenerativeAI("YOUR_API_KEY");
+const genAI = new GoogleGenerativeAI("AIzaSyCJxI6rWNMq0Kl5rwr0PhMJvdomCCd7n7c");
 const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash",
   systemInstructions:
