@@ -152,9 +152,9 @@ document.addEventListener("mouseup", () => {
   selection = window.getSelection();
   selectedText = selection.toString().trim();
 
-  console.log("selectedText: ", selectedText);
-  console.log("isEli5enabled: ", isEli5Enabled);
-  console.log("popup open: ", popupOpen);
+  // console.log("selectedText: ", selectedText);
+  // console.log("isEli5enabled: ", isEli5Enabled);
+  // console.log("popup open: ", popupOpen);
 
   if (selectedText && isEli5Enabled) {
     console.log("textselected & eli5enabled");
