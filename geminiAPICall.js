@@ -188,12 +188,10 @@ async function sendToAPI(dataUrl) {
     console.log("imageResult ", imageResult);
 
     const data = await imageResult.json();
-
-    // console.log("data ", data);
     responseText = data.modelAnswer;
     console.log("responseText is ", responseText);
 
-    await addToHistory(promptPrefix, responseText);
+    await addToHistory("Explain the image", responseText);
 
     responseReceivedFromAPI = true;
 
