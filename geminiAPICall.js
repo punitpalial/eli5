@@ -62,7 +62,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const data = await response.json();
         const explanation = await data.explanation;
 
-        await addToHistory(firstBaseText, explanation);
+        // await addToHistory(firstBaseText, explanation);
 
         sendResponse({
           sendResponseBackToContentScript: explanation,
@@ -112,7 +112,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         console.log("Response received:", modelAnswer);
 
-        addToHistory(laterBaseText, modelAnswer);
+        // addToHistory(laterBaseText, modelAnswer);
 
         sendResponse({
           modelResponse: modelAnswer,
@@ -193,7 +193,7 @@ async function sendToAPI(dataUrl) {
     responseText = data.modelAnswer;
     console.log("responseText is ", responseText);
 
-    await addToHistory(promptPrefix, responseText);
+    // await addToHistory(promptPrefix, responseText);
 
     responseReceivedFromAPI = true;
 
@@ -213,21 +213,21 @@ async function sendToAPI(dataUrl) {
   }
 }
 
-async function addToHistory(UserMessage, ModelResponse) {
-  try {
-    const historyUserObject = {
-      role: "user",
-      parts: [{ text: UserMessage }],
-    };
+// async function addToHistory(UserMessage, ModelResponse) {
+//   try {
+//     const historyUserObject = {
+//       role: "user",
+//       parts: [{ text: UserMessage }],
+//     };
 
-    const historyModelObject = {
-      role: "model",
-      parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
-    };
+//     const historyModelObject = {
+//       role: "model",
+//       parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
+//     };
 
-    chat._history.push(historyUserObject);
-    chat._history.push(historyModelObject);
-  } catch (error) {
-    console.log("Error adding to history", error);
-  }
-}
+//     chat._history.push(historyUserObject);
+//     chat._history.push(historyModelObject);
+//   } catch (error) {
+//     console.log("Error adding to history", error);
+//   }
+// }
