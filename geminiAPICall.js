@@ -12,14 +12,6 @@ let responseText = "empty";
 let responseReceivedFromAPI = false;
 let mode;
 
-//to keep the connection to service worker alive
-chrome.runtime.onConnect.addListener((port) => {
-  port.onMessage.addListener((message) => {
-    console.log(message);
-    port.postMessage("pong");
-  });
-});
-
 chrome.storage.sync.get(["responseMode"], function (result) {
   mode = result.responseMode;
 });

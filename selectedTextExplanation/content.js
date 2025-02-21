@@ -10,18 +10,6 @@ let isAreaScreenShotEnabled = false;
 let lastKeyPressed = null;
 let previousEli5ToggleState = isEli5Enabled;
 
-//port to maintain longterm communication with the backgroud (geminiAPI)
-const port = chrome.runtime.connect();
-
-port.onMessage.addListener((message) => {
-  console.log(message); //pong
-});
-
-//keep the service worker alive
-setInterval(() => {
-  port.postMessage("ping");
-}, 10000);
-
 // Load saved states when content script initializes
 chrome.storage.sync.get(
   ["textSelectionEnabled", "responseMode", "areaScreenshotEnabled"],
