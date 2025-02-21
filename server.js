@@ -17,10 +17,6 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-let chat = model.startChat({
-  history: [],
-});
-
 app.post("/selectedTextExplanation", async (req, res) => {
   try {
     const { mode, selectedText } = req.body;
@@ -36,6 +32,10 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
 app.post("/inputTextExplanation", async (req, res) => {
   try {
+    let chat = model.startChat({
+      history: [],
+    });
+
     const { mode, inputQuestion, chathistory } = req.body;
     const prompt = mode + inputQuestion;
 
