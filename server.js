@@ -43,6 +43,8 @@ app.post("/inputTextExplanation", async (req, res) => {
     const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
 
+    chat._history = [];
+
     res.json({ modelAnswer: response });
   } catch (error) {
     console.log("Error in getting the explanation of the input", error);
