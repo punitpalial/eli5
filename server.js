@@ -37,7 +37,7 @@ app.post("/selectedTextExplanation", async (req, res) => {
     const result = await model.generateContent(prompt);
     const response = result.response.text();
 
-    await addToHistory(selectedText, response);
+    // await addToHistory(selectedText, response);
 
     console.log("session chat history", chat._history);
 
@@ -56,7 +56,7 @@ app.post("/inputTextExplanation", async (req, res) => {
     const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
 
-    await addToHistory(inputQuestion, response);
+    // await addToHistory(inputQuestion, response);
 
     console.log("Chat history is: ", chathistory._history);
 
@@ -90,7 +90,7 @@ app.post("/testing", async (req, res) => {
 
     console.log("response: ", response);
 
-    await addToHistory(prompt, response);
+    // await addToHistory(prompt, response);
 
     console.log("response: ", response);
 
@@ -119,30 +119,30 @@ app.post("/imageExplanation", async (req, res) => {
 
     const responseText = imageResult.response.text();
 
-    await addToHistory(mode, responseText);
+    // await addToHistory(mode, responseText);
     res.json({ modelAnswer: responseText });
   } catch (error) {
     console.log("Error in getting the explanation of the image", error);
   }
 });
 
-async function addToHistory(UserMessage, ModelResponse) {
-  try {
-    const historyUserObject = {
-      role: "user",
-      parts: [{ text: UserMessage }],
-    };
+// async function addToHistory(UserMessage, ModelResponse) {
+//   try {
+//     const historyUserObject = {
+//       role: "user",
+//       parts: [{ text: UserMessage }],
+//     };
 
-    const historyModelObject = {
-      role: "model",
-      parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
-    };
+//     const historyModelObject = {
+//       role: "model",
+//       parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
+//     };
 
-    chat._history.push(historyUserObject);
-    chat._history.push(historyModelObject);
-  } catch (error) {
-    console.log("Error adding to history", error);
-  }
-}
+//     chat._history.push(historyUserObject);
+//     chat._history.push(historyModelObject);
+//   } catch (error) {
+//     console.log("Error adding to history", error);
+//   }
+// }
 
 app.listen(port, () => console.log("Server Started"));
