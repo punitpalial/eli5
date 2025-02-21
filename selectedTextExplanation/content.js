@@ -1,5 +1,6 @@
 let selectedText = "nothing";
 let textInPopup = "Loading...";
+let popup;
 let popupOpen = false;
 let toggle = false;
 let intputText = "nothing";
@@ -8,6 +9,18 @@ let isEli5Enabled = false;
 let isAreaScreenShotEnabled = false;
 let lastKeyPressed = null;
 let previousEli5ToggleState = isEli5Enabled;
+
+//port to maintain longterm communication with the backgroud (geminiAPI)
+const port = chrome.runtime.connect();
+
+port.onMessage.addListener((message) => {
+  console.log(message); //pong
+});
+
+//keep the service worker alive
+setInterval(() => {
+  port.postMessage("ping");
+}, 10000);
 
 // Load saved states when content script initializes
 chrome.storage.sync.get(
@@ -147,27 +160,25 @@ function showToggleMessage(message) {
 
 // Mouseup event listener to get selected text
 document.addEventListener("mouseup", () => {
-  setTimeout(() => {
-    let selection = window.getSelection();
-    selectedText = selection.toString();
+  // Regular webpage selection
+  selection = window.getSelection();
+  selectedText = selection.toString().trim();
 
-    // Regular webpage selection
-    selection = window.getSelection();
-    selectedText = selection.toString().trim();
+  console.log("selectedText: ", selectedText);
+  console.log("isEli5enabled: ", isEli5Enabled);
+  console.log("popup open: ", popupOpen);
 
-    if (selectedText && isEli5Enabled) {
-      // console.log(selectedText);
+  if (selectedText && isEli5Enabled) {
+    console.log("textselected & eli5enabled");
 
-      window.getSelection().removeAllRanges();
-      if (!popupOpen) {
-        showPopup();
-      }
-      addUserMessageToChat(selectedText, true, null);
-      addGeminiResponseToChat("Loading the explanation", false);
-
-      sendSelectedTextToBackground(selectedText);
+    if (!popupOpen) {
+      showPopup();
     }
-  }, 100);
+
+    addUserMessageToChat(selectedText, true, null);
+    addGeminiResponseToChat("Loading the explanation", false);
+    sendSelectedTextToBackground(selectedText);
+  }
 });
 
 function createMessage(message, isUser = false, dataUrl) {
@@ -234,22 +245,28 @@ function addUserMessageToChat(message, isUser = false, dataUrl) {
 }
 
 function addGeminiResponseToChat(message) {
-  if (!popupOpen) return;
+  if (!popupOpen || !popup) return;
 
   const chatContainer = popup.querySelector(".chat-container");
   if (!chatContainer) return;
 
-  // Find the last AI message in the chat container
-  const lastAiMessage = chatContainer.querySelector(
-    ".chat-message-ai:last-of-type"
-  );
+  try {
+    // Find the last AI message in the chat container
+    const lastAiMessage = chatContainer.querySelector(
+      ".chat-message-ai:last-of-type"
+    );
 
-  if (lastAiMessage) {
-    // If there's an existing AI message, update its content
-    lastAiMessage.textContent = message;
-  } else {
+    if (lastAiMessage) {
+      // If there's an existing AI message, update its content
+      lastAiMessage.textContent = message;
+    } else {
+      // If no AI message exists, create a new one
+      const messageDiv = createMessage("Loading......", false, null);
+      chatContainer.appendChild(messageDiv);
+    }
+  } catch (error) {
     // If no AI message exists, create a new one
-    const messageDiv = createMessage("Loading......", false, null);
+    const messageDiv = createMessage(message, false, null);
     chatContainer.appendChild(messageDiv);
   }
 
@@ -259,9 +276,18 @@ function addGeminiResponseToChat(message) {
 // Send selected text to background script
 function sendSelectedTextToBackground(incomingText) {
   try {
+    if (!popup) {
+      showPopup();
+    }
+
     chrome.runtime.sendMessage(
       { action: "textSelected", text: incomingText },
       function (response) {
+        if (!popup) {
+          popupOpen = false;
+          return;
+        }
+
         textInPopup = response.sendResponseBackToContentScript;
 
         if (response.responseReceived) {
@@ -272,23 +298,31 @@ function sendSelectedTextToBackground(incomingText) {
     );
   } catch (error) {
     console.log("this is the error caught in sendMessage => ", error);
+    if (popup) {
+      addGeminiResponseToChat(
+        "Error processing request. Please try again.",
+        false
+      );
+    }
   }
 }
 
-let popup;
-
 // Show popup with selected text and AI explanation
 function showPopup() {
+  const existingPopup = document.getElementById("selection-popup");
+  if (existingPopup) {
+    existingPopup.remove();
+  }
+
   if (popupOpen) {
     addUserMessageToChat(selectedText, true, null);
     addGeminiResponseToChat("Loading the explanation", false);
   }
 
-  popupOpen = true;
-
   popup = document.createElement("div");
   popup.id = "selection-popup";
   popup.classList.add("explanation-popup");
+  popupOpen = true;
 
   // Create header
   const header = document.createElement("div");
@@ -312,7 +346,9 @@ function showPopup() {
     if (window.getSelection) {
       window.getSelection().removeAllRanges();
     }
+    popup = null;
     popupOpen = false;
+    textInPopup = "Loading...";
   });
 
   // Append elements to header
@@ -396,8 +432,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!chrome.runtime?.id) {
       throw new Error("Extension context invalidated");
     }
-
-    // console.log("Message received in content.js:", message.text);
 
     if (message.action === "imageExplanationResponseReceived") {
       textInPopup = message.text;

@@ -12,6 +12,14 @@ let responseText = "empty";
 let responseReceivedFromAPI = false;
 let mode;
 
+//to keep the connection to service worker alive
+chrome.runtime.onConnect.addListener((port) => {
+  port.onMessage.addListener((message) => {
+    console.log(message);
+    port.postMessage("pong");
+  });
+});
+
 chrome.storage.sync.get(["responseMode"], function (result) {
   mode = result.responseMode;
 });
@@ -62,7 +70,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const data = await response.json();
         const explanation = await data.explanation;
 
-        await addToHistory(firstBaseText, explanation);
+        await addToHistory(message.text, explanation);
 
         sendResponse({
           sendResponseBackToContentScript: explanation,
@@ -109,7 +117,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const data = await result.json();
         let modelAnswer = data.modelAnswer;
 
-        addToHistory(laterBaseText, modelAnswer);
+        addToHistory(userQuestion, modelAnswer);
 
         sendResponse({
           modelResponse: modelAnswer,
