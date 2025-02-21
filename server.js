@@ -24,11 +24,11 @@ let chat = model.startChat({
   history: [],
 });
 
-app.get("/popupClosed", async (req, res) => {
-  chat._history = [];
+// app.get("/popupClosed", async (req, res) => {
+//   chat._history = [];
 
-  console.log(chat._history, "han bhai band kar diya");
-});
+//   console.log(chat._history, "han bhai band kar diya");
+// });
 
 app.post("/selectedTextExplanation", async (req, res) => {
   try {
