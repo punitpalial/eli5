@@ -49,15 +49,15 @@ app.post("/selectedTextExplanation", async (req, res) => {
 
 app.post("/inputTextExplanation", async (req, res) => {
   try {
-    const { mode, inputQuestion } = req.body;
+    const { mode, inputQuestion, chathistory } = req.body;
     const prompt = mode + inputQuestion;
 
-    const result = await chat.sendMessage(prompt);
+    const result = await chathistory.sendMessage(prompt);
     const response = await result.response.text();
 
     await addToHistory(inputQuestion, response);
 
-    console.log("session chat history", chat._history);
+    console.log("session chat history", chathistory._history);
 
     res.json({ modelAnswer: response });
   } catch (error) {
