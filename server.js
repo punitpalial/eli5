@@ -145,4 +145,4 @@ async function addToHistory(UserMessage, ModelResponse) {
   }
 }
 
-// app.listen(port, () => console.log("Server Started"));
+app.listen(port, () => console.log("Server Started"));

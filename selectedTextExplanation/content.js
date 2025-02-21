@@ -9,9 +9,9 @@ let isAreaScreenShotEnabled = false;
 let lastKeyPressed = null;
 let previousEli5ToggleState = isEli5Enabled;
 
-// if(!popupOpen) {
-//   fetch("https://eli5-production-46b4.up.railway.app/popupClosed");
-// }
+if (!popupOpen) {
+  fetch("https://eli5-production-46b4.up.railway.app/popupClosed");
+}
 
 // Load saved states when content script initializes
 chrome.storage.sync.get(
