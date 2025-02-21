@@ -106,11 +106,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         );
 
-        console.log("Result from input: ", result);
         const data = await result.json();
         let modelAnswer = data.modelAnswer;
-
-        console.log("Response received:", modelAnswer);
 
         addToHistory(laterBaseText, modelAnswer);
 
@@ -185,15 +182,12 @@ async function sendToAPI(dataUrl) {
       }
     );
 
-    console.log("imageResult ", imageResult);
-
     const data = await imageResult.json();
-    responseText = data.modelAnswer;
-    completeImageDescription = data.iamgeDescription;
-    console.log("responseText is ", responseText);
-    console.log("completeImageDescription is ", completeImageDescription);
 
-    await addToHistory("Explain the image", responseText);
+    responseText = data.modelAnswer;
+    const completeImageDescription = data.imageDescription;
+
+    await addToHistory(completeImageDescription, responseText);
 
     responseReceivedFromAPI = true;
 

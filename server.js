@@ -28,8 +28,6 @@ app.post("/selectedTextExplanation", async (req, res) => {
     const result = await model.generateContent(prompt);
     const response = result.response.text();
 
-    console.log("session chat history", chat._history);
-
     res.json({ explanation: response });
   } catch (error) {
     console.log("Error in getting the explanation of the selected text", error);
@@ -44,8 +42,6 @@ app.post("/inputTextExplanation", async (req, res) => {
     chat._history = chathistory._history;
     const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
-
-    console.log("Chat history is: ", chathistory._history);
 
     res.json({ modelAnswer: response });
   } catch (error) {
