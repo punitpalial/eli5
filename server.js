@@ -78,7 +78,8 @@ app.post("/imageExplanation", async (req, res) => {
       "Describe everything in the image with great detail",
     ]);
 
-    const fullImageDescription = fullImageResult.response.text();
+    const responseText = await imageResult.response.text();
+    const fullImageDescription = await fullImageResult.response.text();
 
     res.json({
       modelAnswer: responseText,
