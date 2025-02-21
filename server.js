@@ -68,9 +68,22 @@ app.post("/imageExplanation", async (req, res) => {
       mode,
     ]);
 
-    const responseText = imageResult.response.text();
+    const fullImageResult = await model.generateContent([
+      {
+        inlineData: {
+          data: imgData,
+          mimeType: "image/png",
+        },
+      },
+      "Describe everything in the image with great detail",
+    ]);
 
-    res.json({ modelAnswer: responseText });
+    const fullImageDescription = fullImageResult.response.text();
+
+    res.json({
+      modelAnswer: responseText,
+      imageDescription: fullImageDescription,
+    });
   } catch (error) {
     console.log("Error in getting the explanation of the image", error);
   }

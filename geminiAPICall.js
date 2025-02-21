@@ -189,7 +189,9 @@ async function sendToAPI(dataUrl) {
 
     const data = await imageResult.json();
     responseText = data.modelAnswer;
+    completeImageDescription = data.iamgeDescription;
     console.log("responseText is ", responseText);
+    console.log("completeImageDescription is ", completeImageDescription);
 
     await addToHistory("Explain the image", responseText);
 
