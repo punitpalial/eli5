@@ -171,6 +171,8 @@ async function sendToAPI(dataUrl) {
       }
     );
 
+    // https://eli5-production-46b4.up.railway.app
+
     const data = await imageResult.json();
 
     responseText = data.modelAnswer;

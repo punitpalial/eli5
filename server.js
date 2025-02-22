@@ -2,8 +2,11 @@ import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/in
 import express from "express";
 import "dotenv/config";
 
-const port = process.env.PORT;
-const apiKey = process.env.API_KEY;
+// const port = process.env.PORT;
+// const apiKey = process.env.API_KEY;
+
+const port = 3000;
+const apiKey = "AIzaSyCJxI6rWNMq0Kl5rwr0PhMJvdomCCd7n7c";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
@@ -41,18 +44,23 @@ app.post("/inputTextExplanation", async (req, res) => {
 
     console.log("chat in server is: ", chathistory);
 
-    chat._history = chathistory.map((message) => {
-      role: message.role;
-      parts: message.parts;
-      // console.log(
-      //   "message.role: ",
-      //   message.role,
-      //   " message.parts: ",
-      //   message.parts
-      // );
+    chathistory.forEach((message) => {
+      const chatPart = {
+        role: message.role,
+        parts: message.parts,
+        // console.log(
+        //   "message.role: ",
+        //   message.role,
+        //   " message.parts: ",
+        //   message.parts
+        // );
+      };
+
+      // console.log("chatPart: ", chatPart);
+      chat._history.push(chatPart);
     });
 
-    console.log("chat._history: ", chat._history);
+    // console.log("chat._history: ", chat._history);
     const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
 
