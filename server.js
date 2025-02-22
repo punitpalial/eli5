@@ -41,7 +41,12 @@ app.post("/inputTextExplanation", async (req, res) => {
 
     console.log("chat in server is: ", chathistory);
 
-    chat._history = chathistory._history;
+    chat._history = chathistory.map((message) => {
+      role: message.role;
+      parts: message.parts;
+    });
+
+    console.log("chat._history: ", chat._history);
     const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
 
