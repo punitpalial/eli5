@@ -1,11 +1,4 @@
 // Import Statment to import the GoogleGenerativeAI package into my file folder. This took a lot of time to figure out properly because I couldn't provide the proper import statement.
-import { GoogleGenerativeAI } from "./node_modules/@google/generative-ai/dist/index.mjs";
-const genAI = new GoogleGenerativeAI("");
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.0-flash",
-  systemInstructions:
-    "You are an assistant whose task is to simplify the input text or the image sent to you and explain it in simple terms so that an average person can understand the text or the image. Keep the result short and sweet without compromising on explaning relevant details. In case of a image, identify the purple box and only explain the contents within that box.",
-});
 
 let text = "empty";
 let responseText = "empty";
@@ -20,10 +13,6 @@ chrome.storage.onChanged.addListener(() => {
   chrome.storage.sync.get(["responseMode"], function (result) {
     mode = result.responseMode;
   });
-});
-
-const chat = model.startChat({
-  history: [],
 });
 
 // Base Text that goes along with the prompt to the API. Base Text will define what kind of response will the API give with respect to the given prompt
@@ -207,6 +196,8 @@ async function sendToAPI(dataUrl) {
   }
 }
 
+let chat = [];
+
 async function addToHistory(UserMessage, ModelResponse) {
   try {
     const historyUserObject = {
@@ -219,8 +210,10 @@ async function addToHistory(UserMessage, ModelResponse) {
       parts: [{ text: ModelResponse }], // result is the explanation text of the image received from the API
     };
 
-    chat._history.push(historyUserObject);
-    chat._history.push(historyModelObject);
+    chat.push(historyUserObject);
+    chat.push(historyModelObject);
+
+    console.log("chat hai ji: ", chat);
   } catch (error) {
     console.log("Error adding to history", error);
   }

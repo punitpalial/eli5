@@ -39,6 +39,8 @@ app.post("/inputTextExplanation", async (req, res) => {
     const { mode, inputQuestion, chathistory } = req.body;
     const prompt = mode + inputQuestion;
 
+    console.log("chat in server is: ", chathistory);
+
     chat._history = chathistory._history;
     const result = await chat.sendMessage(prompt);
     const response = await result.response.text();
