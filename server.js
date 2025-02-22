@@ -44,6 +44,12 @@ app.post("/inputTextExplanation", async (req, res) => {
     chat._history = chathistory.map((message) => {
       role: message.role;
       parts: message.parts;
+      console.log(
+        "message.role: ",
+        message.role,
+        " message.parts: ",
+        message.parts
+      );
     });
 
     console.log("chat._history: ", chat._history);
