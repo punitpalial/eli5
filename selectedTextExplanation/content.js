@@ -157,7 +157,7 @@ document.addEventListener("mouseup", () => {
   // console.log("popup open: ", popupOpen);
 
   if (selectedText && isEli5Enabled) {
-    console.log("textselected & eli5enabled");
+    // console.log("textselected & eli5enabled");
 
     if (!popupOpen) {
       showPopup();

@@ -181,7 +181,7 @@
 
 #selection-popup .chat-message-ai strong {
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 #selection-popup .chat-message-ai ul {
@@ -229,7 +229,16 @@
 }
 
 #selection-popup .chat-message-ai {
-  /* ...existing styles... */
+  background: #2D2D2D;
+  color: #ffffff;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border-bottom-left-radius: 0;
+  max-width: 90%;
+  word-wrap: break-word;
+  font-size: 14px;
+  white-space: pre-line;
+  line-height: 1.5;
 }
 
 #selection-popup .chat-message-ai p {
@@ -240,11 +249,13 @@
   margin-bottom: 0;
 }
 
-#selection-popup .chat-message-ai strong {
-  color: #fff;
-  font-weight: 600;
+/* Update these styles for bold text */
+#selection-popup .chat-message-ai strong,
+#selection-popup .chat-message-ai b {
+  color: #FFFFFF; /* Make bold text white for better contrast */
+  font-weight: 700 !important; /* Force bold weight */
+  display: inline; /* Change from inline-block to inline */
 }
-
 #selection-popup .chat-message-ai ul {
   margin: 8px 0;
   padding-left: 20px;
@@ -309,4 +320,13 @@
 #selection-popup .send-button:hover {
   color: white;
   background: #333;
+}
+
+
+/* Add these new styles */
+#selection-popup .chat-message-ai p strong,
+#selection-popup .chat-message-ai li strong {
+  display: inline-block; /* Ensures proper rendering */
+  font-weight: 700;
+  color: #fff;
 }
