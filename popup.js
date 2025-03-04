@@ -17,6 +17,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   );
 
+  setInterval(() => {
+    chrome.runtime.sendMessage(
+      {
+        action: "connection1",
+      },
+      function (response) {
+        console.log("connection1 established + ", response);
+      }
+    );
+  }, 10000);
+
   // Response Mode Toggle
   responseModeToggle.addEventListener("change", function () {
     const isEli5Mode = this.checked;
@@ -50,6 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // If textSelectionToggle is changed
   textSelectionToggle.addEventListener("change", function () {
     const isEnabled = this.checked;
+    // console.log("this.enabled ", isEnabled);
 
     // console.log("textSelectionToggle changed in popup");
 
@@ -79,8 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   screenshotButton.addEventListener("click", function () {
-
-
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       chrome.tabs.sendMessage(tabs[0].id, {
         action: "initiateScreenshot",
@@ -90,7 +100,42 @@ document.addEventListener("DOMContentLoaded", function () {
     window.close();
   });
 
-  
+  const questionInput = document.getElementById("questionInput");
+  const sendQuestionButton = document.getElementById("sendQuestionButton");
+
+  // Auto-resize the textarea as the user types
+  questionInput.addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 100) + "px";
+  });
+
+  // Send question when the send button is clicked
+  sendQuestionButton.addEventListener("click", function () {
+    sendQuestion();
+  });
+
+  // Send question when Enter is pressed (without Shift)
+  questionInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendQuestion();
+    }
+  });
+
+  function sendQuestion() {
+    const question = questionInput.value.trim();
+    if (question) {
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: "askQuestion",
+          question: question,
+        });
+      });
+      questionInput.value = "";
+      questionInput.style.height = "auto";
+      window.close(); // Close the popup after sending the question
+    }
+  }
 });
 
 // Listen for messages from content scripts

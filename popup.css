@@ -173,3 +173,47 @@ input:checked + .slider:before {
 .toggle-container:hover {
     background: #333333;
 }
+
+/* Question input styles */
+.question-container {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.chat-input {
+    background-color: #2D2D2D;
+    border: 1px solid rgb(75, 85, 99);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    color: white;
+    width: 100%;
+    resize: none;
+    outline: none;
+    font-size: 14px;
+    min-height: 36px;
+    max-height: 100px;
+}
+
+.send-button {
+    position: absolute;
+    right: 8px;
+    color: rgb(156, 163, 175);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.send-button:hover {
+    color: white;
+    background: #333;
+}
+

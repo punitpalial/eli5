@@ -145,6 +145,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     })();
     return true; // Important: indicates we will send response asynchronously
+  } else if (message.action === "connection1") {
+    sendResponse("from gemini connection1")();
+  } else if (message.action === "connection2") {
+    sendResponse("from gemini connection2")();
   }
 });
 

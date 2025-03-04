@@ -1,8 +1,8 @@
 {
-  "name": "ELi5",
-  "version": "0.0.1",
+  "name": "ELi5 - Anything Explained Like a 5 year old",
+  "version": "0.1.1",
   "manifest_version": 3,
-  "description": "Explains anything to you as if you are 5",
+  "description": "Get any text or image explained to you like a 5 year old",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

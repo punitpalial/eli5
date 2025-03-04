@@ -73,6 +73,17 @@ function sendSelectedTextToBackground(incomingText) {
   }
 }
 
+setInterval(() => {
+  chrome.runtime.sendMessage(
+    {
+      action: "connection2",
+    },
+    function (response) {
+      console.log("connection2 established + ", response);
+    }
+  );
+}, 10000);
+
 /// Toggle state management
 
 const TOGGLE_TIMEOUT = 500; // ms to wait for the next key
