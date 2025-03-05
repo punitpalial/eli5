@@ -2,7 +2,7 @@ body {
     width: 300px;
     margin: 0;
     padding: 16px;
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     background: #1E1E1E;
     color: #FFFFFF;
 }
@@ -198,6 +198,7 @@ input:checked + .slider:before {
     resize: none;
     outline: none;
     font-size: 15px;
+    font-family: 'Arial', sans-serif;
     height: 18px; /* Initial height */
     overflow-y: auto; /* Allow scrolling */
     scrollbar-width: none; /* Firefox */
