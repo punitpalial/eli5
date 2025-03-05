@@ -120,6 +120,13 @@
   resize: none;
   outline: none;
   font-size: 14px;
+  /* scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-y: auto; */
+}
+
+#selection-popup .chat-input::-webkit-scrollbar {
+  display: none;
 }
 
 #selection-popup .chat-message-user {
@@ -304,6 +311,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 #selection-popup .send-button {

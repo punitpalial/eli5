@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mode = isEli5Mode ? "eli5" : "standard";
     chrome.storage.sync.set({ responseMode: mode });
 
-    // console.log("Response mode changed in popup");
+    console.log("Response mode changed in popup");
 
     updateResponseModeLabels(isEli5Mode);
 
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Auto-resize the textarea as the user types
   questionInput.addEventListener("input", function () {
     this.style.height = "auto";
-    this.style.height = Math.min(this.scrollHeight, 100) + "px";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
   });
 
   // Send question when the send button is clicked
@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function sendQuestion() {
     const question = questionInput.value.trim();
     if (question) {
+      console;
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {
           action: "askQuestion",

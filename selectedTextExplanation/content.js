@@ -15,7 +15,11 @@ chrome.storage.sync.get(
   ["textSelectionEnabled", "responseMode", "areaScreenshotEnabled"],
   function (result) {
     isTextSelectionEnabled = result.textSelectionEnabled ?? true; // if result.textSelectionEnabled is undefined or null, then its value will be true. Else it will store whatever value it has
-    responseMode = result.responseMode ?? "eli5";
+    // Add check for responseMode changes
+    if (result.responseMode !== responseMode) {
+      responseMode = result.responseMode;
+      console.log("Response mode updated to:", responseMode);
+    }
     isEli5Enabled = isTextSelectionEnabled;
     isAreaScreenShotEnabled = result.areaScreenshotEnabled;
   }
@@ -24,17 +28,27 @@ chrome.storage.sync.get(
 // If the storage changes, show the
 chrome.storage.onChanged.addListener(() => {
   chrome.storage.sync.get(
-    ["textSelectionEnabled", "areaScreenshotEnabled"],
+    ["textSelectionEnabled", "areaScreenshotEnabled", "responseMode"],
     function (result) {
       if (result.textSelectionEnabled != isEli5Enabled) {
         isEli5Enabled = result.textSelectionEnabled;
-        showToggleMessage(`Eli5 ${isEli5Enabled ? "Enabled" : "Disabled"}`);
+        showToggleMessage(
+          `Text Selection ${isEli5Enabled ? "Enabled" : "Disabled"}`
+        );
       }
 
       if (result.areaScreenshotEnabled != isAreaScreenShotEnabled) {
         isAreaScreenShotEnabled = result.areaScreenshotEnabled;
         showToggleMessage(
           `Area Screenshot ${isAreaScreenShotEnabled ? "Enabled" : "Disabled"}`
+        );
+      }
+
+      // Add check for responseMode changes
+      if (result.responseMode !== responseMode) {
+        responseMode = result.responseMode;
+        showToggleMessage(
+          `Response Mode: ${responseMode === "eli5" ? "ELi5" : "Standard"}`
         );
       }
     }
@@ -46,7 +60,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "toggleTextSelection") {
     isTextSelectionEnabled = message.enabled;
   } else if (message.action === "toggleResponseMode") {
+    console.log("Response mode changed <-> toggleResponeMode: ", message.mode);
     responseMode = message.mode;
+  } else if (message.action === "askQuestion") {
+    console.log("updateQuestion ");
+    if (!popupOpen) {
+      showPopup();
+      popupOpen = true;
+    }
+
+    // addUserMessageToChat(message.question, true, null);
+    handleNewQuestion(message.question);
+    addGeminiResponseToChat("Loading", false);
   }
 });
 
@@ -378,11 +403,12 @@ function showPopup() {
 
   const textarea = document.createElement("textarea");
   textarea.className = "chat-input";
-  textarea.placeholder = "Ask a follow-up question...";
+  textarea.placeholder = "Ask a follow-up question";
   textarea.rows = 1;
   textarea.addEventListener("input", function () {
     this.style.height = "auto";
-    this.style.height = Math.min(this.scrollHeight, 200) + "px";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
+    this.style.paddingRight = "40px";
   });
 
   // Create send button

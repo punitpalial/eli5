@@ -2,7 +2,7 @@ body {
     width: 300px;
     margin: 0;
     padding: 16px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: Arial, sans-serif;
     background: #1E1E1E;
     color: #FFFFFF;
 }
@@ -28,7 +28,7 @@ h1 {
     padding: 12px;
     background: #2D2D2D;
     border-radius: 8px;
-    transition: background-color 0.2s;
+    transition: background-color 0.5s;
 }
 
 .toggle-container:first-of-type {
@@ -176,8 +176,8 @@ input:checked + .slider:before {
 
 /* Question input styles */
 .question-container {
-    margin-top: 16px;
-    padding-top: 12px;
+    margin-top: 4px;  /* Reduced from 16px */
+    padding-top: 16px; /* Reduced from 12px */
     border-top: 1px solid #333;
 }
 
@@ -192,24 +192,41 @@ input:checked + .slider:before {
     border: 1px solid rgb(75, 85, 99);
     border-radius: 0.5rem;
     padding: 0.5rem;
+    padding-right: 40px; /* Increased to accommodate larger send button */
     color: white;
     width: 100%;
     resize: none;
     outline: none;
-    font-size: 14px;
-    min-height: 36px;
-    max-height: 100px;
+    font-size: 15px;
+    height: 18px; /* Initial height */
+    overflow-y: auto; /* Allow scrolling */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.chat-input::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
 }
 
 .send-button {
     position: absolute;
-    right: 8px;
+    right: 4px; /* Adjusted from 2px for better positioning */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Complete vertical centering */
     color: rgb(156, 163, 175);
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    padding: 8px; /* Increased from 4px */
     border-radius: 4px;
+    display: flex; /* Help center the icon */
+    align-items: center;
+    justify-content: center;
+}
+
+.send-button svg {
+    width: 20px; /* Increase SVG icon size */
+    height: 20px;
 }
 
 .send-button:hover {

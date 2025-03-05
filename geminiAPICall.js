@@ -30,10 +30,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         firstBaseText =
           mode === "eli5"
-            ? "Explain the selected text or word in simple terms as if you are explaining to a 5 year old. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. "
-            : "Explain the selected text or word in simple terms. If there are any complex technical terms then explain them simply after giving a short explanation of the selected text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. ";
+            ? "Explain the text or word in simple terms as if you are explaining to a 5 year old. If there are any complex technical terms then explain them simply after giving a short explanation of the text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. "
+            : "Explain the text or word in simple language. If there are any complex technical terms then explain them simply after giving a short explanation of the text first. If you detect any other language apart from English then translate it into English. Don't hallucinate. If you don't know something, simply say that you dont know instead of making things up. ";
         prompt = firstBaseText + message.text;
-
+        // console.log("mode: ", mode);
         const response = await fetch(
           "https://eli5-production-46b4.up.railway.app/selectedTextExplanation",
           {
@@ -74,9 +74,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         laterBaseText =
           mode === "eli5"
-            ? "Answer and Explain what's asked as if you are explaining to a 5 year old. Explain the  complex terms in simple terms as if you are explaining to a 5 year old. If you don't know something, simply say that you don't know instead of making things up. Use the previous chat history as additional context to answer the question.. Here's the question: "
-            : "Answer and Explain what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use the previous chat history as additional context to answer the question. Here's the question: ";
+            ? "Answer and Explain what's asked as if you are explaining to a 5 year old. Explain the  complex terms in simple terms as if you are explaining to a 5 year old. If you don't know something, simply say that you don't know instead of making things up. Use the previous chat history as additional context to answer the question if the previous context is available. Here's the question: "
+            : "Answer and Explain what's asked in very simple terms. Explain the complex terms in simple terms. If you don't know something, simply say that you don't know instead of making things up. Use the previous chat history as additional context to answer the question if the previous context is available. Here's the question: ";
 
+        // console.log("textinput mode: ", laterBaseText);
         prompt = laterBaseText + (message.question || message.text);
         const userQuestion = message.question || message.text;
 
@@ -137,7 +138,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       try {
         const result = await sendToAPI(message.dataUrl);
-
         sendResponse(result);
       } catch (error) {
         console.error("Error processing image:", error);
@@ -219,7 +219,7 @@ async function addToHistory(UserMessage, ModelResponse) {
     chat.push(historyUserObject);
     chat.push(historyModelObject);
 
-    console.log("chat hai ji: ", chat);
+    // console.log("chat hai ji: ", chat);
   } catch (error) {
     console.log("Error adding to history", error);
   }
