@@ -1,6 +1,6 @@
 {
   "name": "ELi5 - Anything Explained Like a 5 year old",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "manifest_version": 3,
   "description": "Get any text or image explained to you like a 5 year old",
   "action": {

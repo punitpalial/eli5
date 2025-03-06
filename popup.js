@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
         action: "connection1",
       },
       function (response) {
-        console.log("connection1 established + ", response);
+        // console.log("connection1 established + ", response);
       }
     );
   }, 10000);
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const mode = isEli5Mode ? "eli5" : "standard";
     chrome.storage.sync.set({ responseMode: mode });
 
-    console.log("Response mode changed in popup");
+    // console.log("Response mode changed in popup");
 
     updateResponseModeLabels(isEli5Mode);
 
@@ -125,7 +125,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function sendQuestion() {
     const question = questionInput.value.trim();
     if (question) {
-      console;
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {
           action: "askQuestion",

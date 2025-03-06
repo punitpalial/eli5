@@ -81,7 +81,8 @@ app.post("/imageExplanation", async (req, res) => {
           mimeType: "image/png",
         },
       },
-      mode,
+      mode +
+        "Explain everything in the PURPLE BOX. If there are any complex terms then give an explanation for them. You are supposed to help me understand what the content in the PURPLE BOX actually means and what does it want to convey",
     ]);
 
     const fullImageResult = await model.generateContent([

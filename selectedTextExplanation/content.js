@@ -18,7 +18,7 @@ chrome.storage.sync.get(
     // Add check for responseMode changes
     if (result.responseMode !== responseMode) {
       responseMode = result.responseMode;
-      console.log("Response mode updated to:", responseMode);
+      // console.log("Response mode updated to:", responseMode);
     }
     isEli5Enabled = isTextSelectionEnabled;
     isAreaScreenShotEnabled = result.areaScreenshotEnabled;
@@ -60,10 +60,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "toggleTextSelection") {
     isTextSelectionEnabled = message.enabled;
   } else if (message.action === "toggleResponseMode") {
-    console.log("Response mode changed <-> toggleResponeMode: ", message.mode);
+    // console.log("Response mode changed <-> toggleResponeMode: ", message.mode);
     responseMode = message.mode;
   } else if (message.action === "askQuestion") {
-    console.log("updateQuestion ");
+    // console.log("updateQuestion ");
     if (!popupOpen) {
       showPopup();
       popupOpen = true;
@@ -104,7 +104,7 @@ setInterval(() => {
       action: "connection2",
     },
     function (response) {
-      console.log("connection2 established + ", response);
+      // console.log("connection2 established + ", response);
     }
   );
 }, 10000);
@@ -465,7 +465,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ received: true });
     }
   } catch (error) {
-    console.error("Message handling error:", error);
+    console.log("Message handling error:", error);
     // Reload the page or show an error message to the user
     alert(
       "The extension needs to be reloaded. Please refresh the page and try again."
