@@ -82,7 +82,7 @@ app.post("/imageExplanation", async (req, res) => {
         },
       },
       mode +
-        "Explain everything in the PURPLE BOX. If there are any complex terms then give an explanation for them. You are supposed to help me understand what the content in the PURPLE BOX actually means and what does it want to convey. If there is text then give the explanation of the text and explain in simple language.",
+        "Explain everything in the PURPLE BOX. If there is any text, then read it and find any complex terms in it. If there are any complex terms then give an explanation for them. You are supposed to help me understand what the content in the PURPLE BOX actually means and what does it want to convey. If there is text then give the explanation of the text and explain in simple language. If there is a question asked in the PURPLE BOX then answer the question. Be an helpful teacher who is simplying the content in the PURPLE BOX and explaining it in simple terms.",
     ]);
 
     const fullImageResult = await model.generateContent([
