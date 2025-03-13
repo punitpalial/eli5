@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna" > Add Extension to your browser
+  <a href="https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna" > Click here to add Extension to your browser
   </a>
 </p>
 
@@ -32,7 +32,7 @@ Choose your response mode
 
 Press e + 5 to enable/disable the text selection
 
-<br> Press alt + drag mouse to select area to be explained
+Press alt + drag mouse to select area to be explained
 
 
 <p align="center"> <img src="https://github.com/user-attachments/assets/79931b59-1008-4826-a299-8897bc2694fe"> </p>
