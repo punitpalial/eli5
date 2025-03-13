@@ -7,8 +7,12 @@
   </a>
 </p>
 
+<p align="center">
+  <p> Download from chrome webstore" </p>
+  <a href="https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna" > Add Extension to your browser
+  </a>
+</p>
 
-Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna)
 
 
 Select any text or image and get an Eli5 explanation all for free.
@@ -26,8 +30,10 @@ Ask follow-up questions, works on all websites and PDFs as well.
 
 
 Choose your response mode
+
 Press e + 5 to enable/disable the text selection
-Press alt + drag mouse to select area to be explained
+
+<br> Press alt + drag mouse to select area to be explained
 
 
 <p align="center"> <img src="https://github.com/user-attachments/assets/79931b59-1008-4826-a299-8897bc2694fe"> </p>
