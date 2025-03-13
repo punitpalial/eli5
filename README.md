@@ -8,7 +8,6 @@
 </p>
 
 <p align="center">
-  <p> Download from chrome webstore" </p>
   <a href="https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna" > Add Extension to your browser
   </a>
 </p>
