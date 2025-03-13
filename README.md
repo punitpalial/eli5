@@ -2,18 +2,13 @@
 
 
 <p align="center"> **ELi5 - Anything Explained Like you are 5!** </p>
-
-
-Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna)
-
-
-
 <p align="center">
   <a href="https://studio.youtube.com/channel/UCf_7ADdZsAPC-7wRoIzLuNQ" width="300"> Watch the demo video
   </a>
 </p>
 
 
+Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna)
 
 
 Select any text or image and get an Eli5 explanation all for free.
