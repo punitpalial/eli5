@@ -7,9 +7,10 @@
 Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna)
 
 
+
 <p align="center">
   <a href="https://studio.youtube.com/channel/UCf_7ADdZsAPC-7wRoIzLuNQ">
-    <img src="https://img.youtube.com/vi/UCf_7ADdZsAPC-7wRoIzLuNQ/0.jpg" alt="Watch the video" width="500">
+    <img src="https://github.com/user-attachments/assets/47c0d77e-8a6b-4dff-97c2-10d6b74a5c41" alt="Watch the Demo Video" width="500">
   </a>
 </p>
 
