@@ -1,5 +1,5 @@
+<p align="center"> ![ELi5 128x128](https://github.com/user-attachments/assets/19371b61-db50-4892-a836-121246687433) </p>
 
-![ELi5 128x128](https://github.com/user-attachments/assets/19371b61-db50-4892-a836-121246687433)
 
 <p align="center"> **ELi5 - Anything Explained Like you are 5!** </p>
 
