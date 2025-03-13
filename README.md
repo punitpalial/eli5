@@ -3,7 +3,16 @@
 
 <p align="center"> **ELi5 - Anything Explained Like you are 5!** </p>
 
-<p align="center"> Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna) </p>
+
+Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna)
+
+
+<p align="center">
+  <a href="https://studio.youtube.com/channel/UCf_7ADdZsAPC-7wRoIzLuNQ">
+    <img src="https://img.youtube.com/vi/UCf_7ADdZsAPC-7wRoIzLuNQ/0.jpg" alt="Watch the video" width="500">
+  </a>
+</p>
+
 
 
 
@@ -26,4 +35,5 @@ Press e + 5 to enable/disable the text selection
 Press alt + drag mouse to select area to be explained
 
 
-![Poup updated](https://github.com/user-attachments/assets/79931b59-1008-4826-a299-8897bc2694fe)
+<p align="center"> <img src="https://github.com/user-attachments/assets/79931b59-1008-4826-a299-8897bc2694fe"> </p>
+
