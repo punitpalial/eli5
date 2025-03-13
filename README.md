@@ -9,8 +9,7 @@ Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com
 
 
 <p align="center">
-  <a href="https://studio.youtube.com/channel/UCf_7ADdZsAPC-7wRoIzLuNQ">
-    <img src="https://github.com/user-attachments/assets/47c0d77e-8a6b-4dff-97c2-10d6b74a5c41" alt="Watch the Demo Video" width="500">
+  <a href="https://studio.youtube.com/channel/UCf_7ADdZsAPC-7wRoIzLuNQ" width="300>
   </a>
 </p>
 
