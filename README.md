@@ -3,7 +3,7 @@
 
 <p align="center"> **ELi5 - Anything Explained Like you are 5!** </p>
 
-Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna)
+<p align="center"> Download from Chrome Webstore: [Add Extension](https://chromewebstore.google.com/detail/eli5-anything-explained-l/ekkhjjndjachhkekbooiflioaajjccna) </p>
 
 
 
